@@ -40,8 +40,12 @@ if (!process.env.ORDER_ALGO_DEPTH) {
 const minSpreadPerc = 0.01 // FIXME
 const nearestNeighborKeep = 0.005 //FIXME
 // const escrowDB = new PouchDB('escrows');
-const escrowDB = new PouchDB('http://admin:dex@127.0.0.1:5984/market_maker');
+//const escrowDB = new PouchDB('http://admin:dex@127.0.0.1:5984/market_maker');
 const assetId = parseInt(args.assetId);
+const walletAddr = algosdk.mnemonicToSecretKey(process.env.WALLET_MNEMONIC).addr;
+const pouchUrl = process.env.POUCHDB_URL ? process.env.POUCHDB_URL + '/' : '';
+const fullPouchUrl = pouchUrl + 'market_maker_' + assetId + '_' + walletAddr.slice(0, 8).toLowerCase();
+const escrowDB = new PouchDB(fullPouchUrl);
 const ladderTiers = parseInt(process.env.LADDER_TIERS) || 3;
 const useTinyMan = process.env.USE_TINYMAN &&
     process.env.USE_TINYMAN.toLowerCase() !== 'false' || false;
@@ -100,8 +104,8 @@ const getTinymanPrice = async(environment) => {
       responseType: 'json',
       timeout: 3000,
     });
-    
-    const latestPrice = assetData.data[assetId];
+    const algoPrice = assetData.data[0];
+    const latestPrice = assetData.data[assetId] / algoPrice;
     return latestPrice;
 };
 
@@ -130,7 +134,7 @@ if (!process.env.WALLET_MNEMONIC) {
 const initWallet = async algodexApi => {
   await algodexApi.setWallet({
     'type': 'sdk',
-    'address': 'WYWRYK42XADLY3O62N52BOLT27DMPRA3WNBT2OBRT65N6OEZQWD4OSH6PI',
+    'address': walletAddr,
     'connector': require('@algodex/algodex-sdk/lib/wallet/connectors/AlgoSDK'),
     // eslint-disable-next-line max-len
     'mnemonic': process.env.WALLET_MNEMONIC,
@@ -149,12 +153,13 @@ const getEscrowsToCancelAndMake = ({escrows, latestPrice, minSpreadPerc, nearest
     };
   });
   const cancelEscrowAddrs = escrowsTemp.filter(escrow => {
-    if (escrow.price > (bidCancelPoint + 0.00051) && escrow.type === 'buy') {
+    if (escrow.price > (bidCancelPoint * (1+0.000501)) && escrow.type === 'buy') {
       return true;
-    } else if (escrow.price < (askCancelPoint - 0.00051) && escrow.type === 'sell') {
+    } else if (escrow.price < (askCancelPoint * (1-0.000501)) && escrow.type === 'sell') {
       return true;
     }
-    if (idealPrices.find(idealPrice => Math.abs(idealPrice - escrow.price) < nearestNeighborKeep)) {
+    if (idealPrices.find(idealPrice => Math.abs((idealPrice - escrow.price)/escrow.price)
+        < nearestNeighborKeep)) {
       return false;
     }
     return true;
@@ -163,7 +168,8 @@ const getEscrowsToCancelAndMake = ({escrows, latestPrice, minSpreadPerc, nearest
   const remainingEscrows = escrowsTemp.filter(escrow => !cancelAddrSet.has(escrow.address));
 
   const createEscrowPrices = idealPrices.filter(idealPrice => {
-    if (remainingEscrows.find(escrow => Math.abs(escrow.price - idealPrice) < nearestNeighborKeep)) {
+    if (remainingEscrows.find(escrow => Math.abs((idealPrice - escrow.price)/escrow.price)
+      < nearestNeighborKeep)) {
       return false;
     }
     return true;
@@ -180,9 +186,9 @@ const getEscrowsToCancelAndMake = ({escrows, latestPrice, minSpreadPerc, nearest
 const getIdealPrices = (ladderTiers, latestPrice, minSpreadPerc) => {
   const prices = [];
   for (let i = 1; i <= ladderTiers; i++) {
-    const randomOffset = Math.random()*0.001-0.0005;
-    const sellPrice = Math.max(0.000001, latestPrice * ((1 + minSpreadPerc) ** i) + randomOffset);
-    const bidPrice = Math.max(0.000001, latestPrice * ((1 - minSpreadPerc) ** i) + randomOffset);
+    const randomOffset = (1+Math.random()*0.001-0.0005);
+    const sellPrice = Math.max(0.000001, latestPrice * ((1 + minSpreadPerc) ** i) * randomOffset);
+    const bidPrice = Math.max(0.000001, latestPrice * ((1 - minSpreadPerc) ** i) * randomOffset);
     prices.push(sellPrice);
     prices.push(bidPrice);
   }
