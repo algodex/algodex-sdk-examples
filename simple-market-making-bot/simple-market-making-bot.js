@@ -10,11 +10,11 @@ const { LogicSigAccount } = require('algosdk');
 // app.set('host', '127.0.0.1');
 if (args.assetId !== undefined &&
     args.assetId.length === 0) {
-  throw new Error('Views are missing!');
+  throw new Error('assetId is not set!');
 }
 if (process.env.environment !== undefined &&
   process.env.environment.length === 0) {
-  throw new Error('Views are missing!');
+  throw new Error('environment is not set!');
 }
 if (!process.env.ALGOD_SERVER) {
   throw new Error('ALGOD_SERVER not set!');
