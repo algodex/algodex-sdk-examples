@@ -52,7 +52,7 @@ if (!process.env.ORDER_ALGO_DEPTH) {
   throw new Error('ORDER_ALGO_DEPTH not set!');
 }
 const minSpreadPerc = parseFloat(process.env.SPREAD_PERCENTAGE) || 0.0065 // FIXME
-const nearestNeighborKeep = parseFloat(process.env.NEAREST_NEIGHBOR_KEEP) || 0.005 //FIXME
+const nearestNeighborKeep = parseFloat(process.env.NEAREST_NEIGHBOR_KEEP) || 0.002 //FIXME
 // const escrowDB = new PouchDB('escrows');
 //const escrowDB = new PouchDB('http://admin:dex@127.0.0.1:5984/market_maker');
 const assetId = parseInt(args.assetId);
@@ -288,7 +288,44 @@ const getCurrentOrders = async (escrowDB, indexer) => {
 const getAssetInfo = async({indexerClient, assetId}) => {
   const assetInfo = await indexerClient.lookupAssetByID(assetId).do();
   return assetInfo;
-}
+};
+
+const getCancelPromises = async ({escrows, cancelSet, api, latestPrice}) => {
+  return escrows.rows.map(order => order.doc.order)
+      .filter(order => cancelSet.has(order.escrowAddr))
+      .filter(order => order.contract.data !== undefined)
+      .map(dbOrder => {
+        const cancelOrderObj = {...dbOrder};
+        cancelOrderObj.contract.lsig = new LogicSigAccount(dbOrder.contract.data.data);
+        cancelOrderObj.client = api.algod;
+        cancelOrderObj.wallet = api.wallet;
+        const tempOrder = {...cancelOrderObj};
+        delete tempOrder.wallet;
+        delete tempOrder.contract;
+        delete tempOrder.client;
+        console.log('CANCELLING ORDER: ', JSON.stringify(tempOrder), ` Latest Price: ${latestPrice}`);
+        return api.closeOrder(cancelOrderObj);
+      });
+};
+
+const cancelOrders = async (orders, cancelPromises) => {
+  await Promise.all(cancelPromises).then(async function(results) {
+    const addrs = results.map(result => result[0].escrowAddr);
+    const resultAddrs = new Set(addrs);
+    const removeFromDBPromises = orders.rows
+        .filter(order => resultAddrs.has(order.doc.order.escrowAddr))
+        .map(order => escrowDB.remove(order.doc));
+    if (results.length > 0) {
+      console.log({results});
+    }
+    await Promise.all(removeFromDBPromises).catch(function(e) {
+      console.error(e);
+    });
+  }).catch(function(e) {
+    console.error(e);
+  });
+};
+
 let isExiting = false;
 let inRunLoop = false;
 const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock} ) => {
@@ -326,39 +363,11 @@ const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock} ) => {
       {escrows: currentEscrows.rows,
         latestPrice, minSpreadPerc, nearestNeighborKeep, idealPrices});
   const cancelSet = new Set(cancelEscrowAddrs);
-  const cancelPromises = currentEscrows.rows.map(order => order.doc.order)
-      .filter(order => cancelSet.has(order.escrowAddr))
-      .filter(order => order.contract.data !== undefined)
-      .map(dbOrder => {
-        const cancelOrderObj = {...dbOrder};
-        cancelOrderObj.contract.lsig = new LogicSigAccount(dbOrder.contract.data.data);
-        cancelOrderObj.client = api.algod;
-        cancelOrderObj.wallet = api.wallet;
-        const tempOrder = {...cancelOrderObj};
-        delete tempOrder.wallet;
-        delete tempOrder.contract;
-        delete tempOrder.client;
-        console.log('CANCELLING ORDER: ', JSON.stringify(tempOrder), ` Latest Price: ${latestPrice}`);
-        return api.closeOrder(cancelOrderObj);
-      });
 
-  await Promise.all(cancelPromises).then(async function(results) {
-    const addrs = results.map(result => result[0].escrowAddr);
-    const resultAddrs = new Set(addrs);
-    const removeFromDBPromises = currentEscrows.rows
-        .filter(order => resultAddrs.has(order.doc.order.escrowAddr))
-        .map(order => escrowDB.remove(order.doc));
-    if (results.length > 0) {
-      console.log({results});
-    }
-    await Promise.all(removeFromDBPromises).catch(function(e) {
-      console.error(e);
-    });
-  }).catch(function(e) {
-    console.error(e);
-  });
+  const cancelPromises = await getCancelPromises({escrows: currentEscrows, cancelSet,
+        api, latestPrice});
+  await cancelOrders(currentEscrows, cancelPromises);
 
-  // const remainingEscrows = await escrowDB.allDocs({include_docs: true});
   const ordersToPlace = createEscrowPrices.map(priceObj => {
     const orderToPlace = {
       'asset': {
@@ -396,19 +405,22 @@ const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock} ) => {
   run({escrowDB, assetId, assetInfo, ladderTiers, lastBlock: 0});
 };
 
-// process.on('SIGINT', async () => {
-//   console.log("Caught interrupt signal");
-//   isExiting = true;
-//   while (inRunLoop) {
-//     console.log("waiting to exit");
-//     await sleep(500);
-//   }
-//   await sleep(3000);
-//   console.log("Caught interrupt signal2");
-
-//  // if (shouldExit) {
-//   process.exit();
-//   //}
-// });
+process.on('SIGINT', async () => {
+  console.log("Caught interrupt signal");
+  isExiting = true;
+  while (inRunLoop) {
+    console.log("waiting to exit");
+    await sleep(500);
+  }
+  // await sleep(3000);
+  console.log("Canceling all orders");
+  const escrows = await getCurrentOrders(escrowDB, api.indexer);
+  const cancelArr = escrows.rows.map(escrow => escrow.doc.order.escrowAddr);
+  const cancelSet = new Set(cancelArr);
+  const cancelPromises = await getCancelPromises({escrows, cancelSet,
+    api, latestPrice: 0});
+  await cancelOrders(escrows, cancelPromises);
+  process.exit();
+});
 
 run({escrowDB, assetId, assetInfo: null, ladderTiers, lastBlock: 0});
