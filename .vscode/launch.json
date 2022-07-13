@@ -9,7 +9,7 @@
               "<node_internals>/**"
           ],
           "program": "${workspaceFolder}/simple-market-making-bot/simple-market-making-bot",
-          "args": ["--environment=testnet", "--assetId=15322902", "--useTinyMan=true"]
+          "args": ["--assetId=15322902"]
       },
   ]
 } 

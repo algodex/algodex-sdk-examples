@@ -12,8 +12,8 @@ if (args.assetId !== undefined &&
     args.assetId.length === 0) {
   throw new Error('Views are missing!');
 }
-if (args.environment !== undefined &&
-  args.environment.length === 0) {
+if (process.env.environment !== undefined &&
+  process.env.environment.length === 0) {
   throw new Error('Views are missing!');
 }
 if (!process.env.ALGOD_SERVER) {
@@ -34,15 +34,19 @@ if (!process.env.INDEXER_TOKEN) {
 if (!process.env.INDEXER_PORT) {
   throw new Error('INDEXER_PORT not set!');
 }
-
+if (!process.env.ORDER_ALGO_DEPTH) {
+  throw new Error('ORDER_ALGO_DEPTH not set!');
+}
 const minSpreadPerc = 0.01 // FIXME
 const nearestNeighborKeep = 0.005 //FIXME
 // const escrowDB = new PouchDB('escrows');
 const escrowDB = new PouchDB('http://admin:dex@127.0.0.1:5984/market_maker');
 const assetId = parseInt(args.assetId);
-const ladderTiers = parseInt(args.ladderTiers) || 3;
-const useTinyMan = args.useTinyMan || false;
-const environment = args.environment === 'mainnet' ? 'mainnet' : 'testnet';
+const ladderTiers = parseInt(process.env.LADDER_TIERS) || 3;
+const useTinyMan = process.env.USE_TINYMAN &&
+    process.env.USE_TINYMAN.toLowerCase() !== 'false' || false;
+const environment = process.env.ENVIRONMENT === 'mainnet' ? 'mainnet' : 'testnet';
+const orderAlgoDepth = process.env.ORDER_ALGO_DEPTH;
 const api = new AlgodexAPI({config: {
   'algod': {
     'uri': process.env.ALGOD_SERVER,
@@ -316,12 +320,13 @@ const run = async ({escrowDB, assetId, ladderTiers, lastBlock} ) => {
   const ordersToPlace = createEscrowPrices.map(priceObj => {
     const orderToPlace = {
       'asset': {
-        'id': 15322902, // Asset Index
+        'id': assetId, // Asset Index
         'decimals': 6, // Asset Decimals
       },
       'address': api.wallet.address,
       'price': priceObj.price, // Price in ALGOs
-      'amount': priceObj.type === 'buy' ? 0.6 : 0.001, // Amount to Buy or Sell
+      'amount': priceObj.type === 'buy' ? 
+          orderAlgoDepth : (orderAlgoDepth / latestPrice), // Amount to Buy or Sell
       'execution': 'maker', // Type of exeuction
       'type': priceObj.type, // Order Type
     };
