@@ -388,7 +388,9 @@ const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock} ) => {
   const results = await Promise.all(ordersToPlace.map(p => p.catch(e => e)));
   const validResults = results.filter(result => !(result instanceof Error));
   const invalidResults = results.filter(result => (result instanceof Error));
-  console.error({invalidResults});
+  if (invalidResults && invalidResults.length > 0) {
+    console.error({invalidResults});
+  }
   const ordersAddToDB = validResults
     .filter(order => order[0].contract.amount > 0)
     .map(order => {
