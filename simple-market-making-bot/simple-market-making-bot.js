@@ -352,7 +352,7 @@ const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock} ) => {
     run({escrowDB, assetId, assetInfo, ladderTiers, lastBlock});
     return;
   }
-  if (latestPrice === undefined) {
+  if (latestPrice === undefined || latestPrice === 0) {
     await sleep(1000);
     run({escrowDB, assetId, assetInfo, ladderTiers, lastBlock});
     return;
@@ -376,8 +376,7 @@ const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock} ) => {
       },
       'address': api.wallet.address,
       'price': priceObj.price, // Price in ALGOs
-      'amount': priceObj.type === 'buy' ? 
-          orderAlgoDepth : (orderAlgoDepth / latestPrice), // Amount to Buy or Sell
+      'amount': orderAlgoDepth / latestPrice, // Amount to Buy or Sell
       'execution': 'maker', // Type of exeuction
       'type': priceObj.type, // Order Type
     };
