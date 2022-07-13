@@ -301,7 +301,7 @@ const run = async ({escrowDB, assetId, ladderTiers, lastBlock} ) => {
       },
       'address': api.wallet.address,
       'price': priceObj.price, // Price in ALGOs
-      'amount': 0.001, // Amount to Buy or Sell
+      'amount': priceObj.type === 'buy' ? 0.6 : 0.001, // Amount to Buy or Sell
       'execution': 'maker', // Type of exeuction
       'type': priceObj.type, // Order Type
     };
