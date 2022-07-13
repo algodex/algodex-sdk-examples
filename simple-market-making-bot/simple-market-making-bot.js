@@ -41,6 +41,7 @@ const nearestNeighborKeep = 0.005 //FIXME
 const escrowDB = new PouchDB('http://admin:dex@127.0.0.1:5984/market_maker');
 const assetId = parseInt(args.assetId);
 const ladderTiers = parseInt(args.ladderTiers) || 3;
+const useTinyMan = args.useTinyMan || false;
 const environment = args.environment === 'mainnet' ? 'mainnet' : 'testnet';
 const api = new AlgodexAPI({config: {
   'algod': {
@@ -84,7 +85,26 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const getLatestPrice = async (environment) => {
+const getTinymanPrice = async(environment) => {
+  const tinymanPriceURL = environment === 'mainnet' ? 
+    'https://mainnet.analytics.tinyman.org/api/v1/current-asset-prices/' :
+    'https://testnet.analytics.tinyman.org/api/v1/current-asset-prices/';
+  
+    const assetData = await axios({
+      method: 'get',
+      url: tinymanPriceURL,
+      responseType: 'json',
+      timeout: 3000,
+    });
+    
+    const latestPrice = assetData.data[assetId];
+    return latestPrice;
+};
+
+const getLatestPrice = async (environment, useTinyMan = false) => {
+  if (useTinyMan) {
+    return await getTinymanPrice(environment);
+  }
   const ordersURL = environment === 'testnet' ?
   'https://testnet.algodex.com/algodex-backend/assets.php' :
   'https://app.algodex.com/algodex-backend/assets.php';
@@ -242,7 +262,7 @@ const run = async ({escrowDB, assetId, ladderTiers, lastBlock} ) => {
   const currentEscrows = await getCurrentOrders(escrowDB, api.indexer);
   let latestPrice;
   try {
-    latestPrice = await getLatestPrice(environment);
+    latestPrice = await getLatestPrice(environment, useTinyMan);
   } catch (e) {
     console.error(e);
     await sleep(100);
