@@ -1,3 +1,10 @@
+/* Usage:
+ *
+ * cp .env.testnet.example .env
+ * node examples/simple-market-making-bot.js --assetId=<assetId>
+ *
+ */
+
 const args = require('minimist')(process.argv.slice(2));
 require('dotenv').config()
 const PouchDB = require('pouchdb');
