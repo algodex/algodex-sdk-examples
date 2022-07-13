@@ -7,7 +7,7 @@ const AlgodexAPI = require('@algodex/algodex-sdk');
 // const withCloseAssetOrderTxns = require('../lib/order/txns/close/withCloseAssetTxns');
 // const withCloseAlgoOrderTxns = require('../lib/order/txns/close/withCloseAlgoTxns');
 const { LogicSigAccount } = require('algosdk');
-
+// app.set('host', '127.0.0.1');
 if (args.assetId !== undefined &&
     args.assetId.length === 0) {
   throw new Error('Views are missing!');
@@ -19,26 +19,32 @@ if (process.env.environment !== undefined &&
 if (!process.env.ALGOD_SERVER) {
   throw new Error('ALGOD_SERVER not set!');
 }
-if (!process.env.ALGOD_TOKEN) {
-  throw new Error('ALGOD_TOKEN not set!');
-}
-if (!process.env.ALGOD_PORT) {
-  throw new Error('ALGOD_PORT not set!');
-}
+// if (!process.env.ALGOD_TOKEN) {
+//   throw new Error('ALGOD_TOKEN not set!');
+// }
+// if (!process.env.ALGOD_PORT) {
+//   throw new Error('ALGOD_PORT not set!');
+// }
 if (!process.env.INDEXER_SERVER) {
   throw new Error('INDEXER_SERVER not set!');
 }
-if (!process.env.INDEXER_TOKEN) {
-  throw new Error('INDEXER_TOKEN not set!');
+if (!process.env.ALGODEX_ALGO_ESCROW_APP) {
+  throw new Error('ALGODEX_ALGO_ESCROW_APP not set!');
 }
-if (!process.env.INDEXER_PORT) {
-  throw new Error('INDEXER_PORT not set!');
+if (!process.env.ALGODEX_ASA_ESCROW_APP) {
+  throw new Error('ALGODEX_ASA_ESCROW_APP not set!');
 }
+  // if (!process.env.INDEXER_TOKEN) {
+//   throw new Error('INDEXER_TOKEN not set!');
+// }
+// if (!process.env.INDEXER_PORT) {
+//   throw new Error('INDEXER_PORT not set!');
+// }
 if (!process.env.ORDER_ALGO_DEPTH) {
   throw new Error('ORDER_ALGO_DEPTH not set!');
 }
-const minSpreadPerc = 0.01 // FIXME
-const nearestNeighborKeep = 0.005 //FIXME
+const minSpreadPerc = parseFloat(process.env.SPREAD_PERCENTAGE) || 0.0065 // FIXME
+const nearestNeighborKeep = parseFloat(process.env.NEAREST_NEIGHBOR_KEEP) || 0.005 //FIXME
 // const escrowDB = new PouchDB('escrows');
 //const escrowDB = new PouchDB('http://admin:dex@127.0.0.1:5984/market_maker');
 const assetId = parseInt(args.assetId);
@@ -51,19 +57,31 @@ const useTinyMan = process.env.USE_TINYMAN &&
     process.env.USE_TINYMAN.toLowerCase() !== 'false' || false;
 const environment = process.env.ENVIRONMENT === 'mainnet' ? 'mainnet' : 'testnet';
 const orderAlgoDepth = process.env.ORDER_ALGO_DEPTH;
+
+
+
+// const token = process.env.ALGOD_TOKEN;
+// const server = process.env.ALGOD_SERVER;
+// const port = process.env.ALGOD_PORT;
+// const client = new algosdk.Algodv2(token, server, port);
+
+// (async () => {
+//   console.log(await client.status().do());
+// })().catch((e) => {
+//   console.log(e);
+// });
+
+
 const api = new AlgodexAPI({config: {
   'algod': {
     'uri': process.env.ALGOD_SERVER,
-    'token': process.env.ALGOD_TOKEN,
-    'port': parseInt(process.env.ALGOD_PORT),
-    
+    'token': process.env.ALGOD_TOKEN || '',
+    'port': process.env.ALGOD_PORT ? parseInt(process.env.ALGOD_PORT) : undefined,
   },
   'indexer': {
-   // 'uri': 'https://algoindexer.testnet.algoexplorerapi.io',
-    //'token': '',
     'uri': process.env.INDEXER_SERVER,
-    'token': process.env.INDEXER_TOKEN,
-    'port': parseInt(process.env.INDEXER_PORT),
+    'token': process.env.INDEXER_TOKEN || '',
+    'port': process.env.INDEXER_PORT ? parseInt(process.env.INDEXER_PORT) : undefined,
   },
   'explorer': {
     'uri': environment === 'mainnet' ? 'https://indexer.testnet.algoexplorerapi.io' :
@@ -75,6 +93,19 @@ const api = new AlgodexAPI({config: {
     'token': '',
   },
 }});
+
+// (async () => {
+
+//   const token  = process.env.INDEXER_TOKEN || '';
+// const server = process.env.INDEXER_SERVER;
+// const port   = process.env.INDEXER_PORT ? parseInt(process.env.INDEXER_PORT) : '';
+// const indexerClient = new algosdk.Indexer(token, server, port);
+
+//   const res = 
+//   await api.indexer.lookupAccountByID('XPUFT2FVG3M5LYRBYJKK2YJ5BR5NOTHH3J5NRIO3VHY5J3DJZMMBKA27HQ').do();
+//     // await indexerClient.lookupAccountByID('XPUFT2FVG3M5LYRBYJKK2YJ5BR5NOTHH3J5NRIO3VHY5J3DJZMMBKA27HQ').do();
+//   console.log({res});
+// })();
 
 // id:
 // 15322902
@@ -104,8 +135,8 @@ const getTinymanPrice = async(environment) => {
       responseType: 'json',
       timeout: 3000,
     });
-    const algoPrice = assetData.data[0];
-    const latestPrice = assetData.data[assetId] / algoPrice;
+    const algoPrice = assetData.data[0].price;
+    const latestPrice = assetData.data[assetId].price / algoPrice;
     return latestPrice;
 };
 
@@ -206,7 +237,8 @@ const convertToDBObject = dbOrder => {
     asset: {id: assetId, decimals: 6},
     assetId: dbOrder.assetId,
     type: dbOrder.type,
-    appId: dbOrder.type === 'buy' ? 22045503 : 22045522,
+    appId: dbOrder.type === 'buy' ? parseInt(process.env.ALGODEX_ALGO_ESCROW_APP) 
+      : parseInt(process.env.ALGODEX_ASA_ESCROW_APP),
     contract: {
       creator: dbOrder.contract.creator,
       data: dbOrder.contract.lsig.lsig.logic.toJSON(),
@@ -355,23 +387,8 @@ const run = async ({escrowDB, assetId, ladderTiers, lastBlock} ) => {
   await Promise.all(ordersAddToDB).catch(e => {
     console.error(e);
   });
-  // await Promise.all(ordersToPlace).then(async results => {
-  //   const ordersAddToDB = results
-  //       .filter(order => order[0].contract.amount > 0)
-  //       .map(order => {
-  //         return escrowDB.put({
-  //           '_id': order[0].contract.escrow,
-  //           'order': convertToDBObject(order[0]),
-  //         });
-  //       });
-  //   await Promise.all(ordersAddToDB).catch(e => {
-  //     console.error(e);
-  //   });
-  // }).catch(e => {
-  //   console.error(e);
-  // });
 
-  await sleep(10000);
+  await sleep(1000);
   run({escrowDB, assetId, ladderTiers, lastBlock: 0});
 };
 
