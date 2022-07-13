@@ -291,15 +291,19 @@ const getCurrentOrders = async (escrowDB, indexer) => {
   return {rows: escrowsWithBalances};
 };
 
-const run = async ({escrowDB, assetId, ladderTiers, lastBlock} ) => {
+const getAssetInfo = async({indexerClient, assetId}) => {
+  const assetInfo = await indexerClient.lookupAssetByID(assetId).do();
+  return assetInfo;
+}
+const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock} ) => {
   console.log('LOOPING...');
   if (!api.wallet) {
     await initWallet(api);
   }
-  // const currentEscrows = await escrowDB.allDocs({include_docs: true});
-  // currentEscrows.rows.forEach(escrow => {
-  //   escrow.doc.order.escrowAddr = escrow.doc._id;
-  // });
+  if (!assetInfo) {
+    assetInfo = await getAssetInfo({indexerClient: api.indexer, assetId});
+  }
+  const decimals = assetInfo.asset.params.decimals;
 
   const currentEscrows = await getCurrentOrders(escrowDB, api.indexer);
   let latestPrice;
@@ -308,12 +312,12 @@ const run = async ({escrowDB, assetId, ladderTiers, lastBlock} ) => {
   } catch (e) {
     console.error(e);
     await sleep(100);
-    run({escrowDB, assetId, ladderTiers, lastBlock});
+    run({escrowDB, assetId, assetInfo, ladderTiers, lastBlock});
     return;
   }
   if (latestPrice === undefined) {
     await sleep(1000);
-    run({escrowDB, assetId, ladderTiers, lastBlock});
+    run({escrowDB, assetId, assetInfo, ladderTiers, lastBlock});
     return;
   }
 
@@ -359,7 +363,7 @@ const run = async ({escrowDB, assetId, ladderTiers, lastBlock} ) => {
     const orderToPlace = {
       'asset': {
         'id': assetId, // Asset Index
-        'decimals': 6, // Asset Decimals
+        'decimals': decimals, // Asset Decimals
       },
       'address': api.wallet.address,
       'price': priceObj.price, // Price in ALGOs
@@ -389,9 +393,9 @@ const run = async ({escrowDB, assetId, ladderTiers, lastBlock} ) => {
   });
 
   await sleep(1000);
-  run({escrowDB, assetId, ladderTiers, lastBlock: 0});
+  run({escrowDB, assetId, assetInfo, ladderTiers, lastBlock: 0});
 };
 
-run({escrowDB, assetId, ladderTiers, lastBlock: 0});
+run({escrowDB, assetId, assetInfo: null, ladderTiers, lastBlock: 0});
 
 
