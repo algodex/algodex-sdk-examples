@@ -1,0 +1,33 @@
+{
+  "name": "algodex-sdk-examples",
+  "version": "1.0.0",
+  "description": "Examples of using the Algodex SDK",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/algodex/algodex-sdk-examples.git"
+  },
+  "keywords": [
+    "algodex",
+    "algorand",
+    "blockchain",
+    "crypto"
+  ],
+  "author": "Alexander Trefonas",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/algodex/algodex-sdk-examples/issues"
+  },
+  "homepage": "https://github.com/algodex/algodex-sdk-examples#readme",
+  "dependencies": {
+    "@algodex/algodex-sdk": "^2.0.1",
+    "algosdk": "^1.18.1",
+    "axios": "^0.27.2",
+    "dotenv": "^16.0.1",
+    "minimist": "^1.2.6",
+    "pouchdb": "^7.3.0"
+  }
+}
