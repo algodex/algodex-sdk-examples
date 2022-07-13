@@ -125,9 +125,9 @@ const getEscrowsToCancelAndMake = ({escrows, latestPrice, minSpreadPerc, nearest
     };
   });
   const cancelEscrowAddrs = escrowsTemp.filter(escrow => {
-    if (escrow.price > bidCancelPoint && escrow.type === 'buy') {
+    if (escrow.price > (bidCancelPoint + 0.00051) && escrow.type === 'buy') {
       return true;
-    } else if (escrow.price < askCancelPoint && escrow.type === 'sell') {
+    } else if (escrow.price < (askCancelPoint - 0.00051) && escrow.type === 'sell') {
       return true;
     }
     if (idealPrices.find(idealPrice => Math.abs(idealPrice - escrow.price) < nearestNeighborKeep)) {
@@ -272,7 +272,7 @@ const run = async ({escrowDB, assetId, ladderTiers, lastBlock} ) => {
         delete tempOrder.wallet;
         delete tempOrder.contract;
         delete tempOrder.client;
-        console.log('CANCELLING ORDER: ', JSON.stringify(tempOrder));
+        console.log('CANCELLING ORDER: ', JSON.stringify(tempOrder), ` Latest Price: ${latestPrice}`);
         return api.closeOrder(cancelOrderObj);
       });
 
@@ -305,7 +305,7 @@ const run = async ({escrowDB, assetId, ladderTiers, lastBlock} ) => {
       'execution': 'maker', // Type of exeuction
       'type': priceObj.type, // Order Type
     };
-    console.log('PLACING ORDER: ', JSON.stringify(orderToPlace));
+    console.log('PLACING ORDER: ', JSON.stringify(orderToPlace), ` Latest Price: ${latestPrice}`);
     const orderPromise = api.placeOrder(orderToPlace);
     return orderPromise;
   });
@@ -340,7 +340,7 @@ const run = async ({escrowDB, assetId, ladderTiers, lastBlock} ) => {
   //   console.error(e);
   // });
 
-  await sleep(1000);
+  await sleep(10000);
   run({escrowDB, assetId, ladderTiers, lastBlock: 0});
 };
 
