@@ -3,6 +3,7 @@
  * cp .env.testnet.example .env
  * node examples/simple-market-making-bot.js --assetId=<assetId>
  *
+ * Note 7/13/2022 - this requires a couple other fixes in algodex-sdk (will be merging soon)
  */
 
 const args = require('minimist')(process.argv.slice(2));
