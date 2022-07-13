@@ -396,19 +396,19 @@ const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock} ) => {
   run({escrowDB, assetId, assetInfo, ladderTiers, lastBlock: 0});
 };
 
-process.on('SIGINT', async () => {
-  console.log("Caught interrupt signal");
-  isExiting = true;
-  while (inRunLoop) {
-    console.log("waiting to exit");
-    await sleep(500);
-  }
-  await sleep(3000);
-  console.log("Caught interrupt signal2");
+// process.on('SIGINT', async () => {
+//   console.log("Caught interrupt signal");
+//   isExiting = true;
+//   while (inRunLoop) {
+//     console.log("waiting to exit");
+//     await sleep(500);
+//   }
+//   await sleep(3000);
+//   console.log("Caught interrupt signal2");
 
- // if (shouldExit) {
-  process.exit();
-  //}
-});
+//  // if (shouldExit) {
+//   process.exit();
+//   //}
+// });
 
 run({escrowDB, assetId, assetInfo: null, ladderTiers, lastBlock: 0});
