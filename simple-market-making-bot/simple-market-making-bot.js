@@ -66,20 +66,6 @@ const useTinyMan = process.env.USE_TINYMAN &&
 const environment = process.env.ENVIRONMENT === 'mainnet' ? 'mainnet' : 'testnet';
 const orderAlgoDepth = process.env.ORDER_ALGO_DEPTH;
 
-
-
-// const token = process.env.ALGOD_TOKEN;
-// const server = process.env.ALGOD_SERVER;
-// const port = process.env.ALGOD_PORT;
-// const client = new algosdk.Algodv2(token, server, port);
-
-// (async () => {
-//   console.log(await client.status().do());
-// })().catch((e) => {
-//   console.log(e);
-// });
-
-
 const api = new AlgodexAPI({config: {
   'algod': {
     'uri': process.env.ALGOD_SERVER,
@@ -303,7 +289,13 @@ const getAssetInfo = async({indexerClient, assetId}) => {
   const assetInfo = await indexerClient.lookupAssetByID(assetId).do();
   return assetInfo;
 }
+let isExiting = false;
+let inRunLoop = false;
 const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock} ) => {
+  if (isExiting) {
+    return;
+  }
+  inRunLoop = true;
   console.log('LOOPING...');
   if (!api.wallet) {
     await initWallet(api);
@@ -399,11 +391,24 @@ const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock} ) => {
   await Promise.all(ordersAddToDB).catch(e => {
     console.error(e);
   });
-
+  inRunLoop = false;
   await sleep(1000);
   run({escrowDB, assetId, assetInfo, ladderTiers, lastBlock: 0});
 };
 
+process.on('SIGINT', async () => {
+  console.log("Caught interrupt signal");
+  isExiting = true;
+  while (inRunLoop) {
+    console.log("waiting to exit");
+    await sleep(500);
+  }
+  await sleep(3000);
+  console.log("Caught interrupt signal2");
+
+ // if (shouldExit) {
+  process.exit();
+  //}
+});
+
 run({escrowDB, assetId, assetInfo: null, ladderTiers, lastBlock: 0});
-
-
