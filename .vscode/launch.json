@@ -9,7 +9,7 @@
               "<node_internals>/**"
           ],
           "program": "${workspaceFolder}/simple-market-making-bot/simple-market-making-bot",
-          "args": ["--assetId=31566704"]
+          "args": ["--assetId=15322902"]
       },
       {
         "type": "node",

@@ -347,7 +347,8 @@ const getOpenAccountSetFromAlgodex = async (environment, walletAddr, assetId) =>
   const arr = allOrders
     .filter(order => order.assetId === assetId)
     .map(order => order.escrowAddress);
-  return new Set(arr);
+  const set = new Set(arr);
+  return set;
 }
 
 let isExiting = false;
@@ -371,6 +372,7 @@ const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock, openAc
 
   const currentEscrows = await getCurrentOrders(escrowDB, api.indexer, openAccountSet);
   let latestPrice;
+
   try {
     latestPrice = await getLatestPrice(environment, useTinyMan);
   } catch (e) {
@@ -442,7 +444,8 @@ process.on('SIGINT', async () => {
   }
   // await sleep(3000);
   console.log("Canceling all orders");
-  const escrows = await getCurrentOrders(escrowDB, api.indexer);
+  const openAccountSet = await getOpenAccountSetFromAlgodex(environment, walletAddr, assetId);
+  const escrows = await getCurrentOrders(escrowDB, api.indexer, openAccountSet);
   const cancelArr = escrows.rows.map(escrow => escrow.doc.order.escrowAddr);
   const cancelSet = new Set(cancelArr);
   const cancelPromises = await getCancelPromises({escrows, cancelSet,

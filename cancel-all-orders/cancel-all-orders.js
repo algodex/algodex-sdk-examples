@@ -76,16 +76,6 @@ const initWallet = async algodexApi => {
   });
 };
 
-module.exports = {
-  ESCROW_CONTRACT_VERSION: 6,
-  MIN_ESCROW_BALANCE: 500000,
-  MIN_ASA_ESCROW_BALANCE: 500000,
-  ALGO_ORDERBOOK_APPID: 354073718,
-  ASA_ORDERBOOK_APPID: 354073834,
-  TEST_ALGO_ORDERBOOK_APPID: 22045503,
-  TEST_ASA_ORDERBOOK_APPID: 22045522,
-};
-
 function isInt(value) {
   if (isNaN(value)) {
     return false;
@@ -149,9 +139,9 @@ const getCancelOrderPromise = async (api, order, environment) => {
   const orderbookEntry = `${order.assetLimitPriceN}-${order.assetLimitPriceD}-0-${order.assetId}`;
 
   const buyOrderApp = environment === 'mainnet' ? constants.ALGO_ORDERBOOK_APPID :
-    TEST_ALGO_ORDERBOOK_APPID;
+      constants.TEST_ALGO_ORDERBOOK_APPID;
   const sellOrderApp = environment === 'mainnet' ? constants.ASA_ORDERBOOK_APPID :
-    TEST_ASA_ORDERBOOK_APPID;
+      constants.TEST_ASA_ORDERBOOK_APPID;
 
   const appId = order.type === 'buy' ? buyOrderApp : sellOrderApp;
 
@@ -194,6 +184,7 @@ const run = async(api, config, environment, walletAddr) => {
   }
   
   // await Promise.all(promises.map(p => p.catch(e => e)));
+  console.log('CANCELLING ' + orders.length + ' ORDERS');
   await Promise.all(promises);
 }
 
