@@ -244,7 +244,7 @@ const convertToDBObject = dbOrder => {
   return obj;
 };
 
-const getAccountExists = async (account, indexer) => {
+const getAccountExistsFromIndexer = async (account, indexer) => {
   try {
     const accountInfo =
       await indexer.lookupAccountByID(account).do();
@@ -260,7 +260,7 @@ const getAccountExists = async (account, indexer) => {
   }
 };
 
-const getCurrentOrders = async (escrowDB, indexer) => {
+const getCurrentOrders = async (escrowDB, indexer, openAccountSet) => {
   const currentEscrows = await escrowDB.allDocs({include_docs: true});
   currentEscrows.rows.forEach(escrow => {
     escrow.doc.order.escrowAddr = escrow.doc._id;
@@ -269,7 +269,8 @@ const getCurrentOrders = async (escrowDB, indexer) => {
   for (let i = 0; i < currentEscrows.rows.length; i++) {
     const escrow = currentEscrows.rows[i];
     const escrowAddr = escrow.doc.order.escrowAddr;
-    if (await getAccountExists(escrowAddr, indexer)) {
+    //if (await getAccountExistsFromIndexer(escrowAddr, indexer)) {
+    if (openAccountSet.has(escrowAddr)) {
       escrowsWithBalances.push(escrow);
     }
   }
@@ -328,14 +329,32 @@ const cancelOrders = async (orders, cancelPromises) => {
   });
 };
 
+const getOpenAccountSetFromAlgodex = async (environment, walletAddr) => {
+  const url = environment == 'testnet' ?
+    'https://testnet.algodex.com/algodex-backend/orders.php?ownerAddr='+walletAddr : 
+    'https://app.algodex.com/algodex-backend/orders.php?ownerAddr='+walletAddr;
+  const orders = await axios({
+    method: 'get',
+    url: url,
+    responseType: 'json',
+    timeout: 3000,
+  });
+  const allOrders = [...orders.data.buyASAOrdersInEscrow, ...orders.data.sellASAOrdersInEscrow];
+  const arr = allOrders.map(order => order.escrowAddress);
+  return new Set(arr);
+}
+
 let isExiting = false;
 let inRunLoop = false;
-const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock} ) => {
+let openAccountSet;
+
+const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock, openAccountSet} ) => {
   if (isExiting) {
     return;
   }
   inRunLoop = true;
   console.log('LOOPING...');
+  openAccountSet = await getOpenAccountSetFromAlgodex(environment, walletAddr);
   if (!api.wallet) {
     await initWallet(api);
   }
@@ -344,19 +363,19 @@ const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock} ) => {
   }
   const decimals = assetInfo.asset.params.decimals;
 
-  const currentEscrows = await getCurrentOrders(escrowDB, api.indexer);
+  const currentEscrows = await getCurrentOrders(escrowDB, api.indexer, openAccountSet);
   let latestPrice;
   try {
     latestPrice = await getLatestPrice(environment, useTinyMan);
   } catch (e) {
     console.error(e);
     await sleep(100);
-    run({escrowDB, assetId, assetInfo, ladderTiers, lastBlock});
+    run({escrowDB, assetId, assetInfo, ladderTiers, lastBlock, openAccountSet});
     return;
   }
   if (latestPrice === undefined || latestPrice === 0) {
     await sleep(1000);
-    run({escrowDB, assetId, assetInfo, ladderTiers, lastBlock});
+    run({escrowDB, assetId, assetInfo, ladderTiers, lastBlock, openAccountSet});
     return;
   }
 
@@ -426,4 +445,4 @@ process.on('SIGINT', async () => {
   process.exit();
 });
 
-run({escrowDB, assetId, assetInfo: null, ladderTiers, lastBlock: 0});
+run({escrowDB, assetId, assetInfo: null, ladderTiers, lastBlock: 0, openAccountSet});

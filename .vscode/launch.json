@@ -11,5 +11,14 @@
           "program": "${workspaceFolder}/simple-market-making-bot/simple-market-making-bot",
           "args": ["--assetId=31566704"]
       },
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "CancelAllOrders",
+        "skipFiles": [
+            "<node_internals>/**"
+        ],
+        "program": "${workspaceFolder}/cancel-all-orders/cancel-all-orders",
+    },
   ]
 } 
