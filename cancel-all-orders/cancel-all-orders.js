@@ -123,17 +123,6 @@ const checkAndGetInput = (
   if (!isInt(appId) || appId < 0) {
     throw new TypeError('invalid appId!');
   }
-  if (
-    !isInt(version) || version <= 2 || version >= 8
-  ) { // FIXME - figure out max version from SDK
-    throw new TypeError('invalid appId!');
-  }
-  // if (!isInt(assetLimitPriceN) || assetLimitPriceN <= 0) {
-  //   throw new TypeError('invalid assetLimitPriceN!');
-  // }
-  // if (!isInt(assetLimitPriceD) || assetLimitPriceD <= 0) {
-  //   throw new TypeError('invalid assetLimitPriceD!');
-  // }
 
   const input = {
     'asset': {
