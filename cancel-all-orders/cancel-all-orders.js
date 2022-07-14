@@ -193,7 +193,8 @@ const run = async(api, config, environment, walletAddr) => {
     promises.push(promise);
   }
   
-  await Promise.all(promises.map(p => p.catch(e => e)));
+  // await Promise.all(promises.map(p => p.catch(e => e)));
+  await Promise.all(promises);
 }
 
 run(api, config, environment, walletAddr);

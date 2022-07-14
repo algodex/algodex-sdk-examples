@@ -225,6 +225,7 @@ const getIdealPrices = (ladderTiers, latestPrice, minSpreadPerc) => {
 
 const convertToDBObject = dbOrder => {
   const obj = {
+    unixTime: Math.round(Date.now()/1000),
     address: dbOrder.address,
     version: dbOrder.version,
     price: dbOrder.price,
@@ -266,11 +267,14 @@ const getCurrentOrders = async (escrowDB, indexer, openAccountSet) => {
     escrow.doc.order.escrowAddr = escrow.doc._id;
   });
   const escrowsWithBalances = [];
+  const currentUnixTime = Math.round(Date.now()/1000);
   for (let i = 0; i < currentEscrows.rows.length; i++) {
     const escrow = currentEscrows.rows[i];
     const escrowAddr = escrow.doc.order.escrowAddr;
-    //if (await getAccountExistsFromIndexer(escrowAddr, indexer)) {
-    if (openAccountSet.has(escrowAddr)) {
+    const orderCreationTime = escrow.doc.order.unixTime || 0;
+    // Assume new orders are still open
+    const timeDiff = currentUnixTime - orderCreationTime;
+    if (openAccountSet.has(escrowAddr) || timeDiff < 60) {
       escrowsWithBalances.push(escrow);
     }
   }
@@ -329,7 +333,7 @@ const cancelOrders = async (orders, cancelPromises) => {
   });
 };
 
-const getOpenAccountSetFromAlgodex = async (environment, walletAddr) => {
+const getOpenAccountSetFromAlgodex = async (environment, walletAddr, assetId) => {
   const url = environment == 'testnet' ?
     'https://testnet.algodex.com/algodex-backend/orders.php?ownerAddr='+walletAddr : 
     'https://app.algodex.com/algodex-backend/orders.php?ownerAddr='+walletAddr;
@@ -340,7 +344,9 @@ const getOpenAccountSetFromAlgodex = async (environment, walletAddr) => {
     timeout: 3000,
   });
   const allOrders = [...orders.data.buyASAOrdersInEscrow, ...orders.data.sellASAOrdersInEscrow];
-  const arr = allOrders.map(order => order.escrowAddress);
+  const arr = allOrders
+    .filter(order => order.assetId === assetId)
+    .map(order => order.escrowAddress);
   return new Set(arr);
 }
 
@@ -354,7 +360,7 @@ const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock, openAc
   }
   inRunLoop = true;
   console.log('LOOPING...');
-  openAccountSet = await getOpenAccountSetFromAlgodex(environment, walletAddr);
+  openAccountSet = await getOpenAccountSetFromAlgodex(environment, walletAddr, assetId);
   if (!api.wallet) {
     await initWallet(api);
   }
