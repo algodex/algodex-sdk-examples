@@ -14,6 +14,7 @@ const PouchDB = require('pouchdb');
 const algosdk = require('algosdk');
 const axios = require('axios');
 const AlgodexAPI = require('@algodex/algodex-sdk');
+const orderDepthAmounts = require('./order-depth-amounts');
 // const withCloseAssetOrderTxns = require('../lib/order/txns/close/withCloseAssetTxns');
 // const withCloseAlgoOrderTxns = require('../lib/order/txns/close/withCloseAlgoTxns');
 const { LogicSigAccount } = require('algosdk');
@@ -89,32 +90,6 @@ const api = new AlgodexAPI({config: {
     'token': '',
   },
 }});
-
-// (async () => {
-
-//   const token  = process.env.INDEXER_TOKEN || '';
-// const server = process.env.INDEXER_SERVER;
-// const port   = process.env.INDEXER_PORT ? parseInt(process.env.INDEXER_PORT) : '';
-// const indexerClient = new algosdk.Indexer(token, server, port);
-
-//   const res = 
-//   await api.indexer.lookupAccountByID('XPUFT2FVG3M5LYRBYJKK2YJ5BR5NOTHH3J5NRIO3VHY5J3DJZMMBKA27HQ').do();
-//     // await indexerClient.lookupAccountByID('XPUFT2FVG3M5LYRBYJKK2YJ5BR5NOTHH3J5NRIO3VHY5J3DJZMMBKA27HQ').do();
-//   console.log({res});
-// })();
-
-// id:
-// 15322902
-// isTraded:
-// true
-// price:
-// 955
-// price24Change:
-// -3.0456852791878175
-// priceBefore:
-// 985
-// unix_time:
-// 1657622395
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -398,6 +373,8 @@ const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock, openAc
   await cancelOrders(currentEscrows, cancelPromises);
 
   const ordersToPlace = createEscrowPrices.map(priceObj => {
+    const orderDepth = orderDepthAmounts.hasOwnProperty(''+assetId) ? 
+      orderDepthAmounts[''+assetId] : orderAlgoDepth;
     const orderToPlace = {
       'asset': {
         'id': assetId, // Asset Index
@@ -405,7 +382,7 @@ const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock, openAc
       },
       'address': api.wallet.address,
       'price': priceObj.price, // Price in ALGOs
-      'amount': orderAlgoDepth / latestPrice, // Amount to Buy or Sell
+      'amount': orderDepth / latestPrice, // Amount to Buy or Sell
       'execution': 'maker', // Type of exeuction
       'type': priceObj.type, // Order Type
     };
