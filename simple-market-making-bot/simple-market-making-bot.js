@@ -9,12 +9,22 @@ const args = require('minimist')(process.argv.slice(2));
 require('dotenv').config()
 const PouchDB = require('pouchdb');
 const algosdk = require('algosdk');
-const axios = require('axios');
 const AlgodexAPI = require('@algodex/algodex-sdk');
 const orderDepthAmounts = require('./order-depth-amounts');
+const sleep = require('./lib/sleep');
+const getLatestPrice = require('./lib/getLatestPrice');
+const getCancelPromises = require('./lib/getCancelPromises');
+const getCurrentOrders = require('./lib/getCurrentOrders');
+const getOpenAccountSetFromAlgodex = require('./lib/getOpenAccountSetFromAlgodex');
+const getEscrowsToCancelAndMake = require('./lib/getEscrowsToCancelAndMake');
+const initWallet = require('./lib/initWallet');
+const getIdealPrices = require('./lib/getIdealPrices');
+const convertToDBObject = require('./lib/convertToDBObject');
+const getAssetInfo = require('./lib/getAssetInfo');
+const cancelOrders = require('./lib/cancelOrders');
+
 // const withCloseAssetOrderTxns = require('../lib/order/txns/close/withCloseAssetTxns');
 // const withCloseAlgoOrderTxns = require('../lib/order/txns/close/withCloseAlgoTxns');
-const { LogicSigAccount } = require('algosdk');
 // app.set('host', '127.0.0.1');
 if (args.assetId !== undefined &&
     args.assetId.length === 0) {
@@ -88,239 +98,8 @@ const api = new AlgodexAPI({config: {
   },
 }});
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-const getTinymanPrice = async(environment) => {
-  const tinymanPriceURL = environment === 'mainnet' ? 
-    'https://mainnet.analytics.tinyman.org/api/v1/current-asset-prices/' :
-    'https://testnet.analytics.tinyman.org/api/v1/current-asset-prices/';
-  
-    const assetData = await axios({
-      method: 'get',
-      url: tinymanPriceURL,
-      responseType: 'json',
-      timeout: 3000,
-    });
-    const algoPrice = assetData.data[0].price;
-    const latestPrice = assetData.data[assetId].price / algoPrice;
-    return latestPrice;
-};
-
-const getLatestPrice = async (environment, useTinyMan = false) => {
-  if (useTinyMan) {
-    return await getTinymanPrice(environment);
-  }
-  const ordersURL = environment === 'testnet' ?
-  'https://testnet.algodex.com/algodex-backend/assets.php' :
-  'https://app.algodex.com/algodex-backend/assets.php';
-
-  const assetData = await axios({
-    method: 'get',
-    url: ordersURL,
-    responseType: 'json',
-    timeout: 3000,
-  });
-  const assets = assetData.data.data;
-  const latestPrice = assets.find(asset => asset.id === assetId).price;
-  return latestPrice;
-};
-
 if (!process.env.WALLET_MNEMONIC) {
   throw new Error('Mnemonic not set!');
-}
-const initWallet = async algodexApi => {
-  await algodexApi.setWallet({
-    'type': 'sdk',
-    'address': walletAddr,
-    'connector': require('@algodex/algodex-sdk/lib/wallet/connectors/AlgoSDK'),
-    // eslint-disable-next-line max-len
-    'mnemonic': process.env.WALLET_MNEMONIC,
-  });
-};
-
-const getEscrowsToCancelAndMake = ({escrows, latestPrice, minSpreadPerc, nearestNeighborKeep,
-  idealPrices}) => {
-  const bidCancelPoint = latestPrice * (1 - minSpreadPerc);
-  const askCancelPoint = latestPrice * (1 + minSpreadPerc);
-  const escrowsTemp = escrows.map(escrow => {
-    return {
-      price: escrow.doc.order.price,
-      type: escrow.doc.order.type,
-      address: escrow.doc._id,
-    };
-  });
-  const cancelEscrowAddrs = escrowsTemp.filter(escrow => {
-    if (escrow.price > (bidCancelPoint * (1+0.000501)) && escrow.type === 'buy') {
-      return true;
-    } else if (escrow.price < (askCancelPoint * (1-0.000501)) && escrow.type === 'sell') {
-      return true;
-    }
-    if (idealPrices.find(idealPrice => Math.abs((idealPrice - escrow.price)/escrow.price)
-        < nearestNeighborKeep)) {
-      return false;
-    }
-    return true;
-  }).map(escrow => escrow.address);
-  const cancelAddrSet = new Set(cancelEscrowAddrs);
-  const remainingEscrows = escrowsTemp.filter(escrow => !cancelAddrSet.has(escrow.address));
-
-  const createEscrowPrices = idealPrices.filter(idealPrice => {
-    if (remainingEscrows.find(escrow => Math.abs((idealPrice - escrow.price)/escrow.price)
-      < nearestNeighborKeep)) {
-      return false;
-    }
-    return true;
-  }).map(price => {
-    return {
-      price,
-      'type': price < latestPrice ? 'buy' : 'sell',
-    };
-  });
-
-  return {createEscrowPrices, cancelEscrowAddrs};
-};
-
-const getIdealPrices = (ladderTiers, latestPrice, minSpreadPerc) => {
-  const prices = [];
-  for (let i = 1; i <= ladderTiers; i++) {
-    const randomOffset = (1+Math.random()*0.001-0.0005);
-    const sellPrice = Math.max(0.000001, latestPrice * ((1 + minSpreadPerc) ** i) * randomOffset);
-    const bidPrice = Math.max(0.000001, latestPrice * ((1 - minSpreadPerc) ** i) * randomOffset);
-    prices.push(sellPrice);
-    prices.push(bidPrice);
-  }
-  prices.sort();
-  return prices;
-};
-
-const convertToDBObject = dbOrder => {
-  const obj = {
-    unixTime: Math.round(Date.now()/1000),
-    address: dbOrder.address,
-    version: dbOrder.version,
-    price: dbOrder.price,
-    amount: dbOrder.amount,
-    total: dbOrder.price * dbOrder.amount,
-    asset: {id: assetId, decimals: 6},
-    assetId: dbOrder.assetId,
-    type: dbOrder.type,
-    appId: dbOrder.type === 'buy' ? parseInt(process.env.ALGODEX_ALGO_ESCROW_APP) 
-      : parseInt(process.env.ALGODEX_ASA_ESCROW_APP),
-    contract: {
-      creator: dbOrder.contract.creator,
-      data: dbOrder.contract.lsig.lsig.logic.toJSON(),
-      escrow: dbOrder.contract.escrow,
-    },
-  };
-  return obj;
-};
-
-const getAccountExistsFromIndexer = async (account, indexer) => {
-  try {
-    const accountInfo =
-      await indexer.lookupAccountByID(account).do();
-    // console.log('Information for Account: ' + JSON.stringify(accountInfo, undefined, 2));
-    if (accountInfo?.account?.amount && accountInfo?.account?.amount > 0) {
-      return true;
-    } else {
-      console.log(`account ${account} not found!`);
-    }
-  } catch (e) {
-    console.log(`account ${account} not found!`);
-    console.error(e);
-  }
-};
-
-const getCurrentOrders = async (escrowDB, indexer, openAccountSet) => {
-  const currentEscrows = await escrowDB.allDocs({include_docs: true});
-  currentEscrows.rows.forEach(escrow => {
-    escrow.doc.order.escrowAddr = escrow.doc._id;
-  });
-  const escrowsWithBalances = [];
-  const currentUnixTime = Math.round(Date.now()/1000);
-  for (let i = 0; i < currentEscrows.rows.length; i++) {
-    const escrow = currentEscrows.rows[i];
-    const escrowAddr = escrow.doc.order.escrowAddr;
-    const orderCreationTime = escrow.doc.order.unixTime || 0;
-    // Assume new orders are still open
-    const timeDiff = currentUnixTime - orderCreationTime;
-    if (openAccountSet.has(escrowAddr) || timeDiff < 60) {
-      escrowsWithBalances.push(escrow);
-    }
-  }
-  const hasBalanceSet = new Set(escrowsWithBalances.map(escrow => escrow.doc.order.escrowAddr));
-  const removeFromDBPromises = [];
-  currentEscrows.rows.forEach(async escrow => {
-    const addr = escrow.doc.order.escrowAddr;
-    if (!hasBalanceSet.has(addr)) {
-      removeFromDBPromises.push(escrowDB.remove(escrow.doc));
-    }
-  });
-  await Promise.all(removeFromDBPromises).catch(function(e) {
-    console.error(e);
-  });
-  return {rows: escrowsWithBalances};
-};
-
-const getAssetInfo = async({indexerClient, assetId}) => {
-  const assetInfo = await indexerClient.lookupAssetByID(assetId).do();
-  return assetInfo;
-};
-
-const getCancelPromises = async ({escrows, cancelSet, api, latestPrice}) => {
-  return escrows.rows.map(order => order.doc.order)
-      .filter(order => cancelSet.has(order.escrowAddr))
-      .filter(order => order.contract.data !== undefined)
-      .map(dbOrder => {
-        const cancelOrderObj = {...dbOrder};
-        cancelOrderObj.contract.lsig = new LogicSigAccount(dbOrder.contract.data.data);
-        cancelOrderObj.client = api.algod;
-        cancelOrderObj.wallet = api.wallet;
-        const tempOrder = {...cancelOrderObj};
-        delete tempOrder.wallet;
-        delete tempOrder.contract;
-        delete tempOrder.client;
-        console.log('CANCELLING ORDER: ', JSON.stringify(tempOrder), ` Latest Price: ${latestPrice}`);
-        return api.closeOrder(cancelOrderObj);
-      });
-};
-
-const cancelOrders = async (orders, cancelPromises) => {
-  await Promise.all(cancelPromises).then(async function(results) {
-    const addrs = results.map(result => result[0].escrowAddr);
-    const resultAddrs = new Set(addrs);
-    const removeFromDBPromises = orders.rows
-        .filter(order => resultAddrs.has(order.doc.order.escrowAddr))
-        .map(order => escrowDB.remove(order.doc));
-    if (results.length > 0) {
-      console.log({results});
-    }
-    await Promise.all(removeFromDBPromises).catch(function(e) {
-      console.error(e);
-    });
-  }).catch(function(e) {
-    console.error(e);
-  });
-};
-
-const getOpenAccountSetFromAlgodex = async (environment, walletAddr, assetId) => {
-  const url = environment == 'testnet' ?
-    'https://testnet.algodex.com/algodex-backend/orders.php?ownerAddr='+walletAddr : 
-    'https://app.algodex.com/algodex-backend/orders.php?ownerAddr='+walletAddr;
-  const orders = await axios({
-    method: 'get',
-    url: url,
-    responseType: 'json',
-    timeout: 3000,
-  });
-  const allOrders = [...orders.data.buyASAOrdersInEscrow, ...orders.data.sellASAOrdersInEscrow];
-  const arr = allOrders
-    .filter(order => order.assetId === assetId)
-    .map(order => order.escrowAddress);
-  const set = new Set(arr);
-  return set;
 }
 
 let isExiting = false;
@@ -335,7 +114,7 @@ const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock, openAc
   console.log('LOOPING...');
   openAccountSet = await getOpenAccountSetFromAlgodex(environment, walletAddr, assetId);
   if (!api.wallet) {
-    await initWallet(api);
+    await initWallet(api, walletAddr);
   }
   if (!assetInfo) {
     assetInfo = await getAssetInfo({indexerClient: api.indexer, assetId});
@@ -346,7 +125,7 @@ const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock, openAc
   let latestPrice;
 
   try {
-    latestPrice = await getLatestPrice(environment, useTinyMan);
+    latestPrice = await getLatestPrice(assetId, environment, useTinyMan);
   } catch (e) {
     console.error(e);
     await sleep(100);
@@ -367,7 +146,7 @@ const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock, openAc
 
   const cancelPromises = await getCancelPromises({escrows: currentEscrows, cancelSet,
         api, latestPrice});
-  await cancelOrders(currentEscrows, cancelPromises);
+  await cancelOrders(escrowDB, currentEscrows, cancelPromises);
 
   const ordersToPlace = createEscrowPrices.map(priceObj => {
     const orderDepth = orderDepthAmounts.hasOwnProperty(''+assetId) ? 
@@ -424,7 +203,7 @@ process.on('SIGINT', async () => {
   const cancelSet = new Set(cancelArr);
   const cancelPromises = await getCancelPromises({escrows, cancelSet,
     api, latestPrice: 0});
-  await cancelOrders(escrows, cancelPromises);
+  await cancelOrders(escrowDB, escrows, cancelPromises);
   process.exit();
 });
 
