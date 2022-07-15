@@ -3,9 +3,6 @@
  * cp .env.testnet.example .env
  * node examples/simple-market-making-bot.js --assetId=<assetId>
  *
- * Note 7/13/2022 - this requires a couple other fixes in algodex-sdk (will be merging soon)
- * See these PRs: https://github.com/algodex/algodex-sdk/pull/218
- *                https://github.com/algodex/algodex-sdk/pull/215
  */
 
 const args = require('minimist')(process.argv.slice(2));
@@ -55,7 +52,7 @@ if (!process.env.ORDER_ALGO_DEPTH) {
   throw new Error('ORDER_ALGO_DEPTH not set!');
 }
 const minSpreadPerc = parseFloat(process.env.SPREAD_PERCENTAGE) || 0.0065 // FIXME
-const nearestNeighborKeep = parseFloat(process.env.NEAREST_NEIGHBOR_KEEP) || 0.002 //FIXME
+const nearestNeighborKeep = parseFloat(process.env.NEAREST_NEIGHBOR_KEEP) || 0.0035 //FIXME
 // const escrowDB = new PouchDB('escrows');
 //const escrowDB = new PouchDB('http://admin:dex@127.0.0.1:5984/market_maker');
 const assetId = parseInt(args.assetId);
