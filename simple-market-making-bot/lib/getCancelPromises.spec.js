@@ -17,7 +17,7 @@ const orders = {
       doc: {
         order: {
           escrowAddr: 'algorand_address_here',
-          contract: {data: {data: 'byte data here'}},
+          contract: {data: {data: [0, 3, 5, 7]}},
         }
       }
     }
@@ -41,7 +41,7 @@ test('Can get cancel promises', async () => {
     "escrowAddr":"algorand_address_here",
     "contract":{
        "data":{
-          "data":"byte data here"
+          "data":[0, 3, 5, 7]
        },
        "lsig":{
           
