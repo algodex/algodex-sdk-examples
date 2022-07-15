@@ -65,6 +65,7 @@ const getOpenOrders = async (config, environment, walletAddr) => {
   const allOrders = [...orders.data.buyASAOrdersInEscrow.map(order => withOrderType(order, 'buy'))
       , ...orders.data.sellASAOrdersInEscrow.map(order => withOrderType(order, 'sell'))];
   return allOrders;
+  //return allOrders.filter(order => order.assetId === 724480511);
 }
 const initWallet = async algodexApi => {
   await algodexApi.setWallet({

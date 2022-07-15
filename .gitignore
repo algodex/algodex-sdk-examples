@@ -132,3 +132,6 @@ dist
 .env.testnet
 .env
 .env.mainnet
+
+# OSX
+.DS_STORE
