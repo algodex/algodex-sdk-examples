@@ -9,7 +9,6 @@ const args = require('minimist')(process.argv.slice(2));
 require('dotenv').config()
 const PouchDB = require('pouchdb');
 const algosdk = require('algosdk');
-const AlgodexAPI = require('@algodex/algodex-sdk');
 const orderDepthAmounts = require('./order-depth-amounts');
 const sleep = require('./lib/sleep');
 const getLatestPrice = require('./lib/getLatestPrice');
@@ -22,6 +21,7 @@ const getIdealPrices = require('./lib/getIdealPrices');
 const convertToDBObject = require('./lib/convertToDBObject');
 const getAssetInfo = require('./lib/getAssetInfo');
 const cancelOrders = require('./lib/cancelOrders');
+const initAPI = require('./lib/initAPI');
 
 // const withCloseAssetOrderTxns = require('../lib/order/txns/close/withCloseAssetTxns');
 // const withCloseAlgoOrderTxns = require('../lib/order/txns/close/withCloseAlgoTxns');
@@ -76,27 +76,7 @@ const useTinyMan = process.env.USE_TINYMAN &&
 const environment = process.env.ENVIRONMENT === 'mainnet' ? 'mainnet' : 'testnet';
 const orderAlgoDepth = process.env.ORDER_ALGO_DEPTH;
 
-const api = new AlgodexAPI({config: {
-  'algod': {
-    'uri': process.env.ALGOD_SERVER,
-    'token': process.env.ALGOD_TOKEN || '',
-    'port': process.env.ALGOD_PORT ? parseInt(process.env.ALGOD_PORT) : undefined,
-  },
-  'indexer': {
-    'uri': process.env.INDEXER_SERVER,
-    'token': process.env.INDEXER_TOKEN || '',
-    'port': process.env.INDEXER_PORT ? parseInt(process.env.INDEXER_PORT) : undefined,
-  },
-  'explorer': {
-    'uri': environment === 'mainnet' ? 'https://indexer.testnet.algoexplorerapi.io' :
-    'https://indexer.algoexplorerapi.io',
-  },
-  'dexd': {
-    'uri': environment === 'mainnet' ? 'https://app.algodex.com/algodex-backend' :
-      'https://testnet.algodex.com/algodex-backend',
-    'token': '',
-  },
-}});
+const api = initAPI(environment);
 
 if (!process.env.WALLET_MNEMONIC) {
   throw new Error('Mnemonic not set!');
