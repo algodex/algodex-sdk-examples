@@ -24,7 +24,12 @@ test('Can place orders', async () => {
     api,
   };
   const orders = await placeOrders({config, createEscrowPrices, decimals, latestPrice});
-
+  expect(orders).toEqual([
+    "placed order",
+    "placed order",
+    "placed order",
+    "placed order"
+  ]);
   const expectedOrderInput = [
     [
       {
