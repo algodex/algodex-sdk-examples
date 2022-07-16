@@ -9,7 +9,7 @@ const addOrdersToDB = async (escrowDB, validResults) => {
       'order': convertToDBObject(order[0]),
     });
   });
-  await Promise.all(ordersAddToDB).catch(e => {
+  return await Promise.all(ordersAddToDB).catch(e => {
     console.error(e);
   });
 };
