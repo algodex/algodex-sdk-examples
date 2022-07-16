@@ -3,7 +3,7 @@ const axios = require('axios');
 
 const getLatestPrice = async (assetId, environment, useTinyMan = false) => {
   if (useTinyMan) {
-    return await getTinymanPrice(environment);
+    return await getTinymanPrice(assetId, environment);
   }
   const ordersURL = environment === 'testnet' ?
   'https://testnet.algodex.com/algodex-backend/assets.php' :

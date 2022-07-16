@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const getTinymanPrice = async(environment) => {
+const getTinymanPrice = async(assetId, environment) => {
   const tinymanPriceURL = environment === 'mainnet' ? 
     'https://mainnet.analytics.tinyman.org/api/v1/current-asset-prices/' :
     'https://testnet.analytics.tinyman.org/api/v1/current-asset-prices/';
