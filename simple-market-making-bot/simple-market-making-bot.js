@@ -73,6 +73,10 @@ const orderAlgoDepth = process.env.ORDER_ALGO_DEPTH;
 
 const api = initAPI(environment);
 
+const config = {assetId, walletAddr, minSpreadPerc, nearestNeighborKeep, 
+  escrowDB, ladderTiers, useTinyMan, environment, orderAlgoDepth, api};
+Object.freeze(config);
+
 if (!process.env.WALLET_MNEMONIC) {
   throw new Error('Mnemonic not set!');
 }
@@ -101,7 +105,5 @@ process.on('SIGINT', async () => {
   process.exit();
 });
 
-runLoop({environment, api, minSpreadPerc, 
-  useTinyMan, walletAddr,orderAlgoDepth,
-  escrowDB, assetId, assetInfo: null, ladderTiers,
-  lastBlock: 0, openAccountSet: null, runState, nearestNeighborKeep});
+runLoop({config, assetInfo: null,
+  lastBlock: 0, runState});

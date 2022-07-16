@@ -13,16 +13,16 @@ const getOpenAccountSetFromAlgodex = require('./getOpenAccountSetFromAlgodex');
 
 const cancelOrders = require('./cancelOrders');
 
-const runLoop = async ({escrowDB, useTinyMan, assetId, assetInfo, ladderTiers,
-    lastBlock, openAccountSet, orderAlgoDepth, nearestNeighborKeep,
-    minSpreadPerc, walletAddr, runState, environment,
-    api} ) => {
+const runLoop = async ({assetInfo, config, lastBlock, runState}) => {
+  const {assetId, walletAddr, minSpreadPerc, nearestNeighborKeep, 
+    escrowDB, ladderTiers, useTinyMan, api, environment, orderAlgoDepth} = config;
+
   if (runState.isExiting) {
     return;
   }
   runState.inRunLoop = true;
   console.log('LOOPING...');
-  openAccountSet = await getOpenAccountSetFromAlgodex(environment, walletAddr, assetId);
+  const openAccountSet = await getOpenAccountSetFromAlgodex(environment, walletAddr, assetId);
   if (!api.wallet) {
     await initWallet(api, walletAddr);
   }
@@ -39,16 +39,12 @@ const runLoop = async ({escrowDB, useTinyMan, assetId, assetInfo, ladderTiers,
   } catch (e) {
     console.error(e);
     await sleep(100);
-    runLoop({escrowDB, api, minSpreadPerc, orderAlgoDepth, ladderTiers,
-      minSpreadPerc, useTinyMan, assetId, walletAddr, assetInfo,
-      lastBlock, openAccountSet, runState, environment, nearestNeighborKeep});
+    runLoop({assetInfo, config, lastBlock, runState});
     return;
   }
   if (latestPrice === undefined || latestPrice === 0) {
     await sleep(1000);
-    runLoop({escrowDB, api, useTinyMan, orderAlgoDepth, ladderTiers,
-      minSpreadPerc, assetId, walletAddr, assetInfo, lastBlock, openAccountSet, 
-      runState, environment, nearestNeighborKeep});
+    runLoop({assetInfo, config, lastBlock, runState});
     return;
   }
 
@@ -99,9 +95,7 @@ const runLoop = async ({escrowDB, useTinyMan, assetId, assetInfo, ladderTiers,
   });
   runState.inRunLoop = false;
   await sleep(1000);
-  runLoop({escrowDB, api, assetId, minSpreadPerc, 
-    useTinyMan, assetInfo, orderAlgoDepth, ladderTiers,
-    walletAddr, lastBlock: 0, runState, nearestNeighborKeep, environment});
+  runLoop({assetInfo, config, lastBlock, runState});
 };
 
 module.exports = runLoop;
