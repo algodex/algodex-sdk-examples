@@ -13,15 +13,10 @@ const getOpenAccountSetFromAlgodex = require('./getOpenAccountSetFromAlgodex');
 
 const cancelOrders = require('./cancelOrders');
 
-const runLoop = async ({assetInfo, config, lastBlock, runState}) => {
+const getCurrentState = async (config, assetInfo) => {
   const {assetId, walletAddr, minSpreadPerc, nearestNeighborKeep, 
     escrowDB, ladderTiers, useTinyMan, api, environment, orderAlgoDepth} = config;
-
-  if (runState.isExiting) {
-    return;
-  }
-  runState.inRunLoop = true;
-  console.log('LOOPING...');
+    
   const openAccountSet = await getOpenAccountSetFromAlgodex(environment, walletAddr, assetId);
   if (!api.wallet) {
     await initWallet(api, walletAddr);
@@ -32,21 +27,13 @@ const runLoop = async ({assetInfo, config, lastBlock, runState}) => {
   const decimals = assetInfo.asset.params.decimals;
 
   const currentEscrows = await getCurrentOrders(escrowDB, api.indexer, openAccountSet);
-  let latestPrice;
 
-  try {
-    latestPrice = await getLatestPrice(assetId, environment, useTinyMan);
-  } catch (e) {
-    console.error(e);
-    await sleep(100);
-    runLoop({assetInfo, config, lastBlock, runState});
-    return;
-  }
-  if (latestPrice === undefined || latestPrice === 0) {
-    await sleep(1000);
-    runLoop({assetInfo, config, lastBlock, runState});
-    return;
-  }
+  const latestPrice = await getLatestPrice(assetId, environment, useTinyMan);
+  return {latestPrice, currentEscrows, decimals, assetInfo, openAccountSet};
+}
+
+const getPlannedOrderChanges = ({config, currentEscrows, latestPrice}) => {
+  const {minSpreadPerc, nearestNeighborKeep, ladderTiers} = config;
 
   const idealPrices = getIdealPrices(ladderTiers, latestPrice, minSpreadPerc);
   const {createEscrowPrices, cancelEscrowAddrs} = getEscrowsToCancelAndMake(
@@ -54,9 +41,20 @@ const runLoop = async ({assetInfo, config, lastBlock, runState}) => {
         latestPrice, minSpreadPerc, nearestNeighborKeep, idealPrices});
   const cancelSet = new Set(cancelEscrowAddrs);
 
+  return {createEscrowPrices, cancelSet};
+}
+
+const cancelOrdersAndUpdateDB = async ({config, cancelSet, latestPrice, currentEscrows}) => {
+  const {escrowDB, api} = config;
+
   const cancelPromises = await getCancelPromises({escrows: currentEscrows, cancelSet,
-        api, latestPrice});
+    api, latestPrice});
   await cancelOrders(escrowDB, currentEscrows, cancelPromises);
+};
+
+const placeOrdersAndUpdateDB = async ({config, createEscrowPrices,
+    decimals, latestPrice}) => {
+  const {assetId, escrowDB, api, orderAlgoDepth} = config;
 
   const ordersToPlace = createEscrowPrices.map(priceObj => {
     const orderDepth = orderDepthAmounts.hasOwnProperty(''+assetId) ? 
@@ -93,6 +91,36 @@ const runLoop = async ({assetInfo, config, lastBlock, runState}) => {
   await Promise.all(ordersAddToDB).catch(e => {
     console.error(e);
   });
+}
+const runLoop = async ({assetInfo, config, lastBlock, runState}) => {
+  const {assetId, walletAddr, minSpreadPerc, nearestNeighborKeep, 
+    escrowDB, ladderTiers, useTinyMan, api, environment, orderAlgoDepth} = config;
+
+  if (runState.isExiting) {
+    return;
+  }
+  runState.inRunLoop = true;
+  console.log('LOOPING...');
+  
+  const currentState = await getCurrentState(config, assetInfo);
+  const {latestPrice, currentEscrows, decimals} = currentState;
+  if (!assetInfo) {
+    assetInfo = currentState.assetInfo;
+  }
+  
+  if (latestPrice === undefined || latestPrice === 0) {
+    await sleep(1000);
+    runLoop({assetInfo, config, lastBlock, runState});
+    return;
+  }
+
+  const {createEscrowPrices, cancelSet} =
+      getPlannedOrderChanges({config, currentEscrows, latestPrice});
+
+  await cancelOrdersAndUpdateDB({config, cancelSet, latestPrice, currentEscrows});
+
+  await placeOrdersAndUpdateDB({config, createEscrowPrices, decimals, latestPrice});
+  
   runState.inRunLoop = false;
   await sleep(1000);
   runLoop({assetInfo, config, lastBlock, runState});
