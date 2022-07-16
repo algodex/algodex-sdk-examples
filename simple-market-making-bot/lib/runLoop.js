@@ -5,15 +5,17 @@ const getCurrentState = require('./getCurrentState');
 const getPlannedOrderChanges = require('./getPlannedOrderChanges');
 const cancelOrdersAndUpdateDB = require('./cancelOrdersAndUpdateDB');
 
+let didRun = false;
 const runLoop = async ({assetInfo, config, lastBlock, runState}) => {
   // const {assetId, walletAddr, minSpreadPerc, nearestNeighborKeep, 
   //   escrowDB, ladderTiers, useTinyMan, api, environment, orderAlgoDepth} = config;
 
+  // Note - during jest testing, runState is a Proxy
   if (runState.isExiting) {
+    console.log('Exiting!');
     return;
   }
   runState.inRunLoop = true;
-  console.log('LOOPING...');
   
   const currentState = await getCurrentState(config, assetInfo);
   const {latestPrice, currentEscrows, decimals} = currentState;
@@ -22,6 +24,7 @@ const runLoop = async ({assetInfo, config, lastBlock, runState}) => {
   }
   
   if (latestPrice === undefined || latestPrice === 0) {
+    runState.inRunLoop = false;
     await sleep(1000);
     runLoop({assetInfo, config, lastBlock, runState});
     return;
