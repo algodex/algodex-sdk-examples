@@ -16,7 +16,8 @@ const getCurrentOrders = async (escrowDB, indexer, openAccountSet) => {
       escrowsWithBalances.push(escrow);
     }
   }
-  const hasBalanceSet = new Set(escrowsWithBalances.map(escrow => escrow.doc.order.escrowAddr));
+  const hasBalanceSet =
+    new Set(escrowsWithBalances.map(escrow => escrow.doc.order.escrowAddr));
   const removeFromDBPromises = [];
   currentEscrows.rows.forEach(async escrow => {
     const addr = escrow.doc.order.escrowAddr;

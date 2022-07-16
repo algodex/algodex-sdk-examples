@@ -1,12 +1,10 @@
 const initWallet = require('./initWallet');
-const initAPI = require('./initAPI');
 const algosdk = require('algosdk');
-const AlgodexAPI = require('@algodex/algodex-sdk');
 
-  const algodexApiMock = {
-    setWallet: jest.fn(input =>  new Promise(resolve => resolve(input)))
-  }
-  // remove: jest.fn(doc => new Promise(resolve => resolve('done'))),
+const algodexApiMock = {
+  setWallet: jest.fn(input => new Promise(resolve => resolve(input))),
+};
+// remove: jest.fn(doc => new Promise(resolve => resolve('done'))),
 
 test('can initialize wallet', async () => {
   process.env.ALGOD_SERVER = 'http://algod-server';
@@ -17,8 +15,8 @@ test('can initialize wallet', async () => {
   process.env.INDEXER_PORT = 8080;
   process.env.INDEXER_TOKEN = 'bbbadasda';
 
-  let account = algosdk.generateAccount();
-  let passphrase = algosdk.secretKeyToMnemonic(account.sk);
+  const account = algosdk.generateAccount();
+  const passphrase = algosdk.secretKeyToMnemonic(account.sk);
 
   // const api = initAPI('testnet');
   process.env.WALLET_MNEMONIC = passphrase;
@@ -30,6 +28,6 @@ test('can initialize wallet', async () => {
   console.log(wallet);
   // const al
   // const algodexApiMock = {
-  //   setWallet: jest.fn(input => 
+  //   setWallet: jest.fn(input =>
   // }
 });

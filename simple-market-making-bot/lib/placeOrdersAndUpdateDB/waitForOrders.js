@@ -1,5 +1,5 @@
 
-const waitForOrders = async (ordersToPlace) => {
+const waitForOrders = async ordersToPlace => {
   const results = await Promise.all(ordersToPlace.map(p => p.catch(e => e)));
   const validResults = results.filter(result => !(result instanceof Error));
   const invalidResults = results.filter(result => (result instanceof Error));
@@ -7,6 +7,6 @@ const waitForOrders = async (ordersToPlace) => {
     console.error({invalidResults});
   }
   return {validResults, invalidResults};
-}
+};
 
 module.exports = waitForOrders;

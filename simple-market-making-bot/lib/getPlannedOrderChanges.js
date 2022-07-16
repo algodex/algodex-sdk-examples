@@ -11,6 +11,6 @@ const getPlannedOrderChanges = ({config, currentEscrows, latestPrice}) => {
   const cancelSet = new Set(cancelEscrowAddrs);
 
   return {createEscrowPrices, cancelSet};
-}
+};
 
 module.exports = getPlannedOrderChanges;

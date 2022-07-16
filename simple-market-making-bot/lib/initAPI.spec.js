@@ -1,11 +1,9 @@
 const initAPI = require('./initAPI');
-const algosdk = require('algosdk');
-const AlgodexAPI = require('@algodex/algodex-sdk');
 
-  // const algodexApiMock = {
-  //   setWallet: jest.fn(input =>  new Promise(resolve => resolve(input)))
-  // }
-  // remove: jest.fn(doc => new Promise(resolve => resolve('done'))),
+// const algodexApiMock = {
+//   setWallet: jest.fn(input =>  new Promise(resolve => resolve(input)))
+// }
+// remove: jest.fn(doc => new Promise(resolve => resolve('done'))),
 
 test('can initialize api', () => {
   process.env.ALGOD_SERVER = 'http://algod-server';
@@ -18,23 +16,23 @@ test('can initialize api', () => {
 
   const api = initAPI('testnet');
   expect(api.config).toEqual({
-    "algod": {
-      "uri": "http://algod-server",
-      "token": "asdasdasda",
-      "port": 8080
+    'algod': {
+      'uri': 'http://algod-server',
+      'token': 'asdasdasda',
+      'port': 8080,
     },
-    "indexer": {
-      "uri": "http://indexer-server",
-      "token": "bbbadasda",
-      "port": 8080
+    'indexer': {
+      'uri': 'http://indexer-server',
+      'token': 'bbbadasda',
+      'port': 8080,
     },
-    "explorer": {
-      "uri": "https://indexer.algoexplorerapi.io"
+    'explorer': {
+      'uri': 'https://indexer.algoexplorerapi.io',
     },
-    "dexd": {
-      "uri": "https://testnet.algodex.com/algodex-backend",
-      "token": ""
-    }
+    'dexd': {
+      'uri': 'https://testnet.algodex.com/algodex-backend',
+      'token': '',
+    },
   });
 });
 
@@ -49,21 +47,21 @@ test('can initialize with null ports and tokens', () => {
 
   const api = initAPI('testnet');
   expect(api.config).toEqual({
-    "algod": {
-      "uri": "http://algod-server",
-      "token": "",
+    'algod': {
+      'uri': 'http://algod-server',
+      'token': '',
     },
-    "indexer": {
-      "uri": "http://indexer-server",
-      "token": "",
+    'indexer': {
+      'uri': 'http://indexer-server',
+      'token': '',
     },
-    "explorer": {
-      "uri": "https://indexer.algoexplorerapi.io"
+    'explorer': {
+      'uri': 'https://indexer.algoexplorerapi.io',
     },
-    "dexd": {
-      "uri": "https://testnet.algodex.com/algodex-backend",
-      "token": ""
-    }
+    'dexd': {
+      'uri': 'https://testnet.algodex.com/algodex-backend',
+      'token': '',
+    },
   });
 });
 
@@ -78,20 +76,20 @@ test('can initialize with empty ports and tokens', () => {
 
   const api = initAPI('testnet');
   expect(api.config).toEqual({
-    "algod": {
-      "uri": "http://algod-server",
-      "token": "",
+    'algod': {
+      'uri': 'http://algod-server',
+      'token': '',
     },
-    "indexer": {
-      "uri": "http://indexer-server",
-      "token": "",
+    'indexer': {
+      'uri': 'http://indexer-server',
+      'token': '',
     },
-    "explorer": {
-      "uri": "https://indexer.algoexplorerapi.io"
+    'explorer': {
+      'uri': 'https://indexer.algoexplorerapi.io',
     },
-    "dexd": {
-      "uri": "https://testnet.algodex.com/algodex-backend",
-      "token": ""
-    }
+    'dexd': {
+      'uri': 'https://testnet.algodex.com/algodex-backend',
+      'token': '',
+    },
   });
 });

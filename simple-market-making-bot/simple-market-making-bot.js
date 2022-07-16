@@ -6,20 +6,19 @@
  */
 
 const args = require('minimist')(process.argv.slice(2));
-require('dotenv').config()
+require('dotenv').config();
 const PouchDB = require('pouchdb');
 const algosdk = require('algosdk');
 const sleep = require('./lib/sleep');
 const getCancelPromises = require('./lib/getCancelPromises');
 const getCurrentOrders = require('./lib/getCurrentOrders');
-const getOpenAccountSetFromAlgodex = require('./lib/getOpenAccountSetFromAlgodex');
+const getOpenAccountSetFromAlgodex =
+  require('./lib/getOpenAccountSetFromAlgodex');
 
 const cancelOrders = require('./lib/cancelOrders');
 const initAPI = require('./lib/initAPI');
 const runLoop = require('./lib/runLoop');
 
-// const withCloseAssetOrderTxns = require('../lib/order/txns/close/withCloseAssetTxns');
-// const withCloseAlgoOrderTxns = require('../lib/order/txns/close/withCloseAlgoTxns');
 // app.set('host', '127.0.0.1');
 if (args.assetId !== undefined &&
     args.assetId.length === 0) {
@@ -47,7 +46,7 @@ if (!process.env.ALGODEX_ALGO_ESCROW_APP) {
 if (!process.env.ALGODEX_ASA_ESCROW_APP) {
   throw new Error('ALGODEX_ASA_ESCROW_APP not set!');
 }
-  // if (!process.env.INDEXER_TOKEN) {
+// if (!process.env.INDEXER_TOKEN) {
 //   throw new Error('INDEXER_TOKEN not set!');
 // }
 // if (!process.env.INDEXER_PORT) {
@@ -56,24 +55,29 @@ if (!process.env.ALGODEX_ASA_ESCROW_APP) {
 if (!process.env.ORDER_ALGO_DEPTH) {
   throw new Error('ORDER_ALGO_DEPTH not set!');
 }
-const minSpreadPerc = parseFloat(process.env.SPREAD_PERCENTAGE) || 0.0065 // FIXME
-const nearestNeighborKeep = parseFloat(process.env.NEAREST_NEIGHBOR_KEEP) || 0.0035 //FIXME
+const minSpreadPerc =
+  parseFloat(process.env.SPREAD_PERCENTAGE) || 0.0065; // FIXME
+const nearestNeighborKeep =
+  parseFloat(process.env.NEAREST_NEIGHBOR_KEEP) || 0.0035; // FIXME
 // const escrowDB = new PouchDB('escrows');
-//const escrowDB = new PouchDB('http://admin:dex@127.0.0.1:5984/market_maker');
+// const escrowDB = new PouchDB('http://admin:dex@127.0.0.1:5984/market_maker');
 const assetId = parseInt(args.assetId);
-const walletAddr = algosdk.mnemonicToSecretKey(process.env.WALLET_MNEMONIC).addr;
+const walletAddr =
+  algosdk.mnemonicToSecretKey(process.env.WALLET_MNEMONIC).addr;
 const pouchUrl = process.env.POUCHDB_URL ? process.env.POUCHDB_URL + '/' : '';
-const fullPouchUrl = pouchUrl + 'market_maker_' + assetId + '_' + walletAddr.slice(0, 8).toLowerCase();
+const fullPouchUrl = pouchUrl + 'market_maker_' +
+    assetId + '_' + walletAddr.slice(0, 8).toLowerCase();
 const escrowDB = new PouchDB(fullPouchUrl);
 const ladderTiers = parseInt(process.env.LADDER_TIERS) || 3;
 const useTinyMan = process.env.USE_TINYMAN &&
     process.env.USE_TINYMAN.toLowerCase() !== 'false' || false;
-const environment = process.env.ENVIRONMENT === 'mainnet' ? 'mainnet' : 'testnet';
+const environment = process.env.ENVIRONMENT ===
+    'mainnet' ? 'mainnet' : 'testnet';
 const orderAlgoDepth = process.env.ORDER_ALGO_DEPTH;
 
 const api = initAPI(environment);
 
-const config = {assetId, walletAddr, minSpreadPerc, nearestNeighborKeep, 
+const config = {assetId, walletAddr, minSpreadPerc, nearestNeighborKeep,
   escrowDB, ladderTiers, useTinyMan, environment, orderAlgoDepth, api};
 Object.freeze(config);
 
@@ -87,15 +91,16 @@ const runState = {
 };
 
 process.on('SIGINT', async () => {
-  console.log("Caught interrupt signal");
+  console.log('Caught interrupt signal');
   runState.isExiting = true;
   while (runState.inRunLoop) {
-    console.log("waiting to exit");
+    console.log('waiting to exit');
     await sleep(500);
   }
   // await sleep(3000);
-  console.log("Canceling all orders");
-  const openAccountSet = await getOpenAccountSetFromAlgodex(environment, walletAddr, assetId);
+  console.log('Canceling all orders');
+  const openAccountSet =
+    await getOpenAccountSetFromAlgodex(environment, walletAddr, assetId);
   const escrows = await getCurrentOrders(escrowDB, api.indexer, openAccountSet);
   const cancelArr = escrows.rows.map(escrow => escrow.doc.order.escrowAddr);
   const cancelSet = new Set(cancelArr);

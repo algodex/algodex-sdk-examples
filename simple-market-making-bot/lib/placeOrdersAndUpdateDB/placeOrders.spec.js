@@ -4,7 +4,7 @@ const placeOrders = require('./placeOrders');
 const api = {
   algod: 'algodObjHere',
   wallet: 'my_algorand_wallet_here',
-  placeOrder: jest.fn(order => 'placed order')
+  placeOrder: jest.fn(order => 'placed order'),
 };
 
 const createEscrowPrices = [
@@ -23,62 +23,63 @@ test('Can place orders', async () => {
     orderAlgoDepth: 10,
     api,
   };
-  const orders = await placeOrders({config, createEscrowPrices, decimals, latestPrice});
+  const orders =
+    await placeOrders({config, createEscrowPrices, decimals, latestPrice});
   expect(orders).toEqual([
-    "placed order",
-    "placed order",
-    "placed order",
-    "placed order"
+    'placed order',
+    'placed order',
+    'placed order',
+    'placed order',
   ]);
   const expectedOrderInput = [
     [
       {
-        "asset": {
-          "id": 661231,
-          "decimals": 6
+        'asset': {
+          'id': 661231,
+          'decimals': 6,
         },
-        "price": 11.9,
-        "amount": 30.959752321981423,
-        "execution": "maker",
-        "type": "buy"
-      }
+        'price': 11.9,
+        'amount': 30.959752321981423,
+        'execution': 'maker',
+        'type': 'buy',
+      },
     ],
     [
       {
-        "asset": {
-          "id": 661231,
-          "decimals": 6
+        'asset': {
+          'id': 661231,
+          'decimals': 6,
         },
-        "price": 12,
-        "amount": 30.959752321981423,
-        "execution": "maker",
-        "type": "buy"
-      }
+        'price': 12,
+        'amount': 30.959752321981423,
+        'execution': 'maker',
+        'type': 'buy',
+      },
     ],
     [
       {
-        "asset": {
-          "id": 661231,
-          "decimals": 6
+        'asset': {
+          'id': 661231,
+          'decimals': 6,
         },
-        "price": 12.2,
-        "amount": 30.959752321981423,
-        "execution": "maker",
-        "type": "sell"
-      }
+        'price': 12.2,
+        'amount': 30.959752321981423,
+        'execution': 'maker',
+        'type': 'sell',
+      },
     ],
     [
       {
-        "asset": {
-          "id": 661231,
-          "decimals": 6
+        'asset': {
+          'id': 661231,
+          'decimals': 6,
         },
-        "price": 12.3,
-        "amount": 30.959752321981423,
-        "execution": "maker",
-        "type": "sell"
-      }
-    ]
+        'price': 12.3,
+        'amount': 30.959752321981423,
+        'execution': 'maker',
+        'type': 'sell',
+      },
+    ],
   ];
 
   expect(api.placeOrder.mock.calls).toEqual(expectedOrderInput);
