@@ -9,19 +9,14 @@ const args = require('minimist')(process.argv.slice(2));
 require('dotenv').config()
 const PouchDB = require('pouchdb');
 const algosdk = require('algosdk');
-const orderDepthAmounts = require('./order-depth-amounts');
 const sleep = require('./lib/sleep');
-const getLatestPrice = require('./lib/getLatestPrice');
 const getCancelPromises = require('./lib/getCancelPromises');
 const getCurrentOrders = require('./lib/getCurrentOrders');
 const getOpenAccountSetFromAlgodex = require('./lib/getOpenAccountSetFromAlgodex');
-const getEscrowsToCancelAndMake = require('./lib/getEscrowsToCancelAndMake');
-const initWallet = require('./lib/initWallet');
-const getIdealPrices = require('./lib/getIdealPrices');
-const convertToDBObject = require('./lib/convertToDBObject');
-const getAssetInfo = require('./lib/getAssetInfo');
+
 const cancelOrders = require('./lib/cancelOrders');
 const initAPI = require('./lib/initAPI');
+const runLoop = require('./lib/runLoop');
 
 // const withCloseAssetOrderTxns = require('../lib/order/txns/close/withCloseAssetTxns');
 // const withCloseAlgoOrderTxns = require('../lib/order/txns/close/withCloseAlgoTxns');
@@ -82,93 +77,13 @@ if (!process.env.WALLET_MNEMONIC) {
   throw new Error('Mnemonic not set!');
 }
 
-let isExiting = false;
-let inRunLoop = false;
-let openAccountSet;
-
-const run = async ({escrowDB, assetId, assetInfo, ladderTiers, lastBlock, openAccountSet} ) => {
-  if (isExiting) {
-    return;
-  }
-  inRunLoop = true;
-  console.log('LOOPING...');
-  openAccountSet = await getOpenAccountSetFromAlgodex(environment, walletAddr, assetId);
-  if (!api.wallet) {
-    await initWallet(api, walletAddr);
-  }
-  if (!assetInfo) {
-    assetInfo = await getAssetInfo({indexerClient: api.indexer, assetId});
-  }
-  const decimals = assetInfo.asset.params.decimals;
-
-  const currentEscrows = await getCurrentOrders(escrowDB, api.indexer, openAccountSet);
-  let latestPrice;
-
-  try {
-    latestPrice = await getLatestPrice(assetId, environment, useTinyMan);
-  } catch (e) {
-    console.error(e);
-    await sleep(100);
-    run({escrowDB, assetId, assetInfo, ladderTiers, lastBlock, openAccountSet});
-    return;
-  }
-  if (latestPrice === undefined || latestPrice === 0) {
-    await sleep(1000);
-    run({escrowDB, assetId, assetInfo, ladderTiers, lastBlock, openAccountSet});
-    return;
-  }
-
-  const idealPrices = getIdealPrices(ladderTiers, latestPrice, minSpreadPerc);
-  const {createEscrowPrices, cancelEscrowAddrs} = getEscrowsToCancelAndMake(
-      {escrows: currentEscrows.rows,
-        latestPrice, minSpreadPerc, nearestNeighborKeep, idealPrices});
-  const cancelSet = new Set(cancelEscrowAddrs);
-
-  const cancelPromises = await getCancelPromises({escrows: currentEscrows, cancelSet,
-        api, latestPrice});
-  await cancelOrders(escrowDB, currentEscrows, cancelPromises);
-
-  const ordersToPlace = createEscrowPrices.map(priceObj => {
-    const orderDepth = orderDepthAmounts.hasOwnProperty(''+assetId) ? 
-      orderDepthAmounts[''+assetId] : orderAlgoDepth;
-    const orderToPlace = {
-      'asset': {
-        'id': assetId, // Asset Index
-        'decimals': decimals, // Asset Decimals
-      },
-      'address': api.wallet.address,
-      'price': priceObj.price, // Price in ALGOs
-      'amount': orderDepth / latestPrice, // Amount to Buy or Sell
-      'execution': 'maker', // Type of exeuction
-      'type': priceObj.type, // Order Type
-    };
-    console.log('PLACING ORDER: ', JSON.stringify(orderToPlace), ` Latest Price: ${latestPrice}`);
-    const orderPromise = api.placeOrder(orderToPlace);
-    return orderPromise;
-  });
-  const results = await Promise.all(ordersToPlace.map(p => p.catch(e => e)));
-  const validResults = results.filter(result => !(result instanceof Error));
-  const invalidResults = results.filter(result => (result instanceof Error));
-  if (invalidResults && invalidResults.length > 0) {
-    console.error({invalidResults});
-  }
-  const ordersAddToDB = validResults
-    .filter(order => order[0].contract.amount > 0)
-    .map(order => {
-      return escrowDB.put({
-        '_id': order[0].contract.escrow,
-        'order': convertToDBObject(order[0]),
-      });
-    });
-  await Promise.all(ordersAddToDB).catch(e => {
-    console.error(e);
-  });
-  inRunLoop = false;
-  await sleep(1000);
-  run({escrowDB, assetId, assetInfo, ladderTiers, lastBlock: 0});
+const runState = {
+  isExiting: false,
+  inRunLoop: false,
 };
 
 process.on('SIGINT', async () => {
+  const { inRunLoop, isExiting } = runState;
   console.log("Caught interrupt signal");
   isExiting = true;
   while (inRunLoop) {
@@ -187,4 +102,7 @@ process.on('SIGINT', async () => {
   process.exit();
 });
 
-run({escrowDB, assetId, assetInfo: null, ladderTiers, lastBlock: 0, openAccountSet});
+runLoop({environment, api, minSpreadPerc, 
+  useTinyMan, walletAddr,orderAlgoDepth,
+  escrowDB, assetId, assetInfo: null, ladderTiers,
+  lastBlock: 0, openAccountSet: null, runState, nearestNeighborKeep});
