@@ -1,10 +1,14 @@
 const sleep = require('./sleep');
 
-const callback = (ms) => {
+// eslint-disable-next-line no-unused-vars
+const callback = ms => {
   globalThis.didSleep = ms;
 };
 
-var setTimeout = (callback, ms) => { callback(ms) };
+// eslint-disable-next-line no-unused-vars
+const setTimeout = (callback, ms) => {
+  callback(ms);
+};
 
 test('did sleep', async () => {
   await sleep(40);

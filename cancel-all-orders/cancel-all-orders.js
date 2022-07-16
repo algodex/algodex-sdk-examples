@@ -1,6 +1,5 @@
 const args = require('minimist')(process.argv.slice(2));
-require('dotenv').config()
-const PouchDB = require('pouchdb');
+require('dotenv').config();
 const algosdk = require('algosdk');
 const axios = require('axios');
 const AlgodexAPI = require('@algodex/algodex-sdk');
@@ -10,9 +9,6 @@ const {
 } = require('@algodex/algodex-sdk/lib/order/compile');
 
 const constants = require('@algodex/algodex-sdk/lib/constants');
-// const withCloseAssetOrderTxns = require('../lib/order/txns/close/withCloseAssetTxns');
-// const withCloseAlgoOrderTxns = require('../lib/order/txns/close/withCloseAlgoTxns');
-const { LogicSigAccount } = require('algosdk');
 // app.set('host', '127.0.0.1');
 if (args.assetId !== undefined &&
     args.assetId.length === 0) {
@@ -23,19 +19,23 @@ if (process.env.environment !== undefined &&
   throw new Error('environment is not set!');
 }
 
-const environment = process.env.ENVIRONMENT === 'mainnet' ? 'mainnet' : 'testnet'; 
-const walletAddr = algosdk.mnemonicToSecretKey(process.env.WALLET_MNEMONIC).addr;
+const environment =
+  process.env.ENVIRONMENT === 'mainnet' ? 'mainnet' : 'testnet';
+const walletAddr =
+  algosdk.mnemonicToSecretKey(process.env.WALLET_MNEMONIC).addr;
 
 const config = {
   'algod': {
     'uri': process.env.ALGOD_SERVER,
     'token': process.env.ALGOD_TOKEN || '',
-    'port': process.env.ALGOD_PORT ? parseInt(process.env.ALGOD_PORT) : undefined,
+    'port': process.env.ALGOD_PORT ?
+      parseInt(process.env.ALGOD_PORT) : undefined,
   },
   'indexer': {
     'uri': process.env.INDEXER_SERVER,
     'token': process.env.INDEXER_TOKEN || '',
-    'port': process.env.INDEXER_PORT ? parseInt(process.env.INDEXER_PORT) : undefined,
+    'port': process.env.INDEXER_PORT ?
+      parseInt(process.env.INDEXER_PORT) : undefined,
   },
   'explorer': {
     'uri': environment === 'mainnet' ? 'https://indexer.testnet.algoexplorerapi.io' :
@@ -53,7 +53,7 @@ const api = new AlgodexAPI({config});
 const withOrderType = (order, type) => {
   order.type = type;
   return order;
-}
+};
 const getOpenOrders = async (config, environment, walletAddr) => {
   const url = config.dexd.uri + '/orders.php?ownerAddr='+walletAddr;
   const orders = await axios({
@@ -62,11 +62,13 @@ const getOpenOrders = async (config, environment, walletAddr) => {
     responseType: 'json',
     timeout: 3000,
   });
-  const allOrders = [...orders.data.buyASAOrdersInEscrow.map(order => withOrderType(order, 'buy'))
-      , ...orders.data.sellASAOrdersInEscrow.map(order => withOrderType(order, 'sell'))];
+  const allOrders = [...orders.data.buyASAOrdersInEscrow.map(order =>
+    withOrderType(order, 'buy')),
+  ...orders.data.sellASAOrdersInEscrow.map(order =>
+    withOrderType(order, 'sell'))];
   return allOrders;
-  //return allOrders.filter(order => order.assetId === 724480511);
-}
+  // return allOrders.filter(order => order.assetId === 724480511);
+};
 const initWallet = async algodexApi => {
   await algodexApi.setWallet({
     'type': 'sdk',
@@ -77,6 +79,7 @@ const initWallet = async algodexApi => {
   });
 };
 
+// eslint-disable-next-line require-jsdoc
 function isInt(value) {
   if (isNaN(value)) {
     return false;
@@ -87,9 +90,8 @@ function isInt(value) {
 }
 
 const checkAndGetInput = (
-  escrowAddress,
-  orderEntry, version, ownerAddress, appId, isAlgoBuyEscrow) => {
-
+    escrowAddress,
+    orderEntry, version, ownerAddress, appId, isAlgoBuyEscrow) => {
   const orderSplit = orderEntry.split('-');
   // rec contains the original order creators address
   const assetLimitPriceN = parseInt(orderSplit[0]);
@@ -137,19 +139,24 @@ const checkAndGetInput = (
 
 
 const getCancelOrderPromise = async (api, order, environment) => {
-  const orderbookEntry = `${order.assetLimitPriceN}-${order.assetLimitPriceD}-0-${order.assetId}`;
+  const orderbookEntry =
+    `${order.assetLimitPriceN}-${order.assetLimitPriceD}-0-${order.assetId}`;
 
-  const buyOrderApp = environment === 'mainnet' ? constants.ALGO_ORDERBOOK_APPID :
+  const buyOrderApp = environment === 'mainnet' ?
+      constants.ALGO_ORDERBOOK_APPID :
       constants.TEST_ALGO_ORDERBOOK_APPID;
-  const sellOrderApp = environment === 'mainnet' ? constants.ASA_ORDERBOOK_APPID :
+  const sellOrderApp = environment === 'mainnet' ?
+      constants.ASA_ORDERBOOK_APPID :
       constants.TEST_ASA_ORDERBOOK_APPID;
 
   const appId = order.type === 'buy' ? buyOrderApp : sellOrderApp;
 
-  const orderInput = checkAndGetInput(order.escrowAddress, orderbookEntry, order.version, 
-    order.ownerAddress, appId, order.type === 'buy');
+  const orderInput = checkAndGetInput(order.escrowAddress,
+      orderbookEntry, order.version,
+      order.ownerAddress, appId, order.type === 'buy');
   orderInput.client = api.algod;
-  const compiledOrder = await withLogicSigAccount(withOrderbookEntry(orderInput));
+  const compiledOrder =
+      await withLogicSigAccount(withOrderbookEntry(orderInput));
 
   const cancelOrderPromise = api.closeOrder({
     address: order.ownerAddress,
@@ -157,12 +164,12 @@ const getCancelOrderPromise = async (api, order, environment) => {
     price: Number(order.formattedPrice),
     amount: Number(order.formattedASAAmount),
     total: Number(order.formattedPrice) * Number(order.formattedASAAmount),
-    asset: { id: order.assetId, decimals: order.decimals },
+    asset: {id: order.assetId, decimals: order.decimals},
     assetId: order.assetId,
     type: order.type,
     appId,
     contract: {...compiledOrder.contract, creator: order.ownerAddress},
-    /*{
+    /* {
       creator: order.ownerAddress,
       escrow: order.escrowAddress,
       N: order.assetLimitPriceN,
@@ -172,10 +179,10 @@ const getCancelOrderPromise = async (api, order, environment) => {
     },*/
     wallet: api.wallet,
     client: api.algod,
-  })
+  });
   return cancelOrderPromise;
-}
-const run = async(api, config, environment, walletAddr) => {
+};
+const run = async (api, config, environment, walletAddr) => {
   await initWallet(api);
   const orders = await getOpenOrders(config, environment, walletAddr);
   const promises = [];
@@ -183,11 +190,11 @@ const run = async(api, config, environment, walletAddr) => {
     const promise = await getCancelOrderPromise(api, orders[i], environment);
     promises.push(promise);
   }
-  
+
   // await Promise.all(promises.map(p => p.catch(e => e)));
   console.log('CANCELLING ' + orders.length + ' ORDERS');
   await Promise.all(promises);
-}
+};
 
 run(api, config, environment, walletAddr);
 

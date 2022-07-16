@@ -4,7 +4,7 @@ const placeOrders = ({config, createEscrowPrices, decimals, latestPrice}) => {
   const {assetId, orderAlgoDepth, api} = config;
 
   const placedOrders = createEscrowPrices.map(priceObj => {
-    const orderDepth = orderDepthAmounts.hasOwnProperty(''+assetId) ? 
+    const orderDepth = orderDepthAmounts.hasOwnProperty(''+assetId) ?
       orderDepthAmounts[''+assetId] : orderAlgoDepth;
     const orderToPlace = {
       'asset': {
@@ -17,7 +17,8 @@ const placeOrders = ({config, createEscrowPrices, decimals, latestPrice}) => {
       'execution': 'maker', // Type of exeuction
       'type': priceObj.type, // Order Type
     };
-    console.log('PLACING ORDER: ', JSON.stringify(orderToPlace), ` Latest Price: ${latestPrice}`);
+    console.log('PLACING ORDER: ',
+        JSON.stringify(orderToPlace), ` Latest Price: ${latestPrice}`);
     const orderPromise = api.placeOrder(orderToPlace);
     return orderPromise;
   });
