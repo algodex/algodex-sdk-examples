@@ -1,18 +1,8 @@
-const sleep = require('./sleep');
 const getLatestPrice = require('./getLatestPrice');
-const getEscrowsToCancelAndMake = require('./getEscrowsToCancelAndMake');
 const initWallet = require('./initWallet');
-const getIdealPrices = require('./getIdealPrices');
-const convertToDBObject = require('./convertToDBObject');
 const getAssetInfo = require('./getAssetInfo');
-
-const getCancelPromises = require('./getCancelPromises');
 const getCurrentOrders = require('./getCurrentOrders');
 const getOpenAccountSetFromAlgodex = require('./getOpenAccountSetFromAlgodex');
-const placeOrdersAndUpdateDB = require('./placeOrdersAndUpdateDB');
-const cancelOrders = require('./cancelOrders');
-const getPlannedOrderChanges = require('./getPlannedOrderChanges');
-const cancelOrdersAndUpdateDB = require('./cancelOrdersAndUpdateDB');
 
 const getCurrentState = async (config, assetInfo) => {
   const {assetId, walletAddr, minSpreadPerc, nearestNeighborKeep, 
