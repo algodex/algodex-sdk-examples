@@ -1,7 +1,7 @@
 /* Usage:
  *
  * cp .env.testnet.example .env
- * node examples/simple-market-making-bot.js --assetId=<assetId>
+ * node simple-market-making-bot/simple-market-making-bot.js --assetId=<assetId>
  *
  */
 
@@ -83,10 +83,9 @@ const runState = {
 };
 
 process.on('SIGINT', async () => {
-  const { inRunLoop, isExiting } = runState;
   console.log("Caught interrupt signal");
-  isExiting = true;
-  while (inRunLoop) {
+  runState.isExiting = true;
+  while (runState.inRunLoop) {
     console.log("waiting to exit");
     await sleep(500);
   }
