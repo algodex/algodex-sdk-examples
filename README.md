@@ -8,7 +8,7 @@ npm install
 ```
 
 ```
-cp .env .env.testnet.example
+cp .env.testnet.example .env
 ```
 Edit the .env file to your Algorand node and indexer endpoints.
 
