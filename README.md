@@ -1,5 +1,5 @@
 # algodex-sdk-examples
-Examples of using the Algodex SDK
+Examples of using the [Algodex SDK](https://github.com/algodex/algodex-sdk)
 
 ## Setup
 
