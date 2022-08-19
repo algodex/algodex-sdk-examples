@@ -182,19 +182,39 @@ const getCancelOrderPromise = async (api, order, environment) => {
   });
   return cancelOrderPromise;
 };
-const run = async (api, config, environment, walletAddr) => {
+const getAccountExistsFromIndexer = async (account, indexer) => {
+  try {
+    const accountInfo =
+      await indexer.lookupAccountByID(account).do();
+    if (accountInfo?.account?.amount && accountInfo?.account?.amount > 0) {
+      return true;
+    } else {
+      console.log(`account ${account} not found!`);
+    }
+  } catch (e) {
+    console.log(`account ${account} not found!`);
+    console.error(e);
+  }
+};
+
+const run = async(api, config, environment, walletAddr) => {
   await initWallet(api);
   const orders = await getOpenOrders(config, environment, walletAddr);
   const promises = [];
   for (let i = 0; i < orders.length; i++) {
-    const promise = await getCancelOrderPromise(api, orders[i], environment);
+    const exists = await getAccountExistsFromIndexer(orders[i].escrowAddress, api.indexer);
+    if (!exists) {
+      console.error('Account ' + orders[i].escrowAddress + ' doesnt exist!');
+      continue;
+    }
+    const promise = getCancelOrderPromise(api, orders[i], environment);
     promises.push(promise);
   }
 
-  // await Promise.all(promises.map(p => p.catch(e => e)));
   console.log('CANCELLING ' + orders.length + ' ORDERS');
   await Promise.all(promises);
-};
+}
+
 
 run(api, config, environment, walletAddr);
 
