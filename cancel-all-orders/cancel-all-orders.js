@@ -60,7 +60,7 @@ const getOpenOrders = async (config, environment, walletAddr) => {
     method: 'get',
     url: url,
     responseType: 'json',
-    timeout: 3000,
+    timeout: 10000,
   });
   const allOrders = [...orders.data.buyASAOrdersInEscrow.map(order =>
     withOrderType(order, 'buy')),

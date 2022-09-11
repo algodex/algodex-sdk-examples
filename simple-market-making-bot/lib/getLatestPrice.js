@@ -13,7 +13,7 @@ const getLatestPrice = async (assetId, environment, useTinyMan = false) => {
     method: 'get',
     url: ordersURL,
     responseType: 'json',
-    timeout: 3000,
+    timeout: 10000,
   });
   const assets = assetData.data.data;
   const latestPrice = assets.find(asset => asset.id === assetId).price;

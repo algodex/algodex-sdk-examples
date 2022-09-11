@@ -9,7 +9,7 @@ const getTinymanPrice = async (assetId, environment) => {
     method: 'get',
     url: tinymanPriceURL,
     responseType: 'json',
-    timeout: 3000,
+    timeout: 10000,
   });
   const algoPrice = assetData.data[0].price;
   const latestPrice = assetData.data[assetId].price / algoPrice;
