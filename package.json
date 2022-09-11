@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/algodex/algodex-sdk-examples#readme",
   "dependencies": {
-    "@algodex/algodex-sdk": "^2.0.2",
+    "@algodex/algodex-sdk": "^2.0.7",
     "algosdk": "^1.18.1",
     "axios": "^0.27.2",
     "dotenv": "^16.0.1",
