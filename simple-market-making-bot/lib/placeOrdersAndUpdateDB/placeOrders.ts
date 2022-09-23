@@ -25,4 +25,4 @@ const placeOrders = ({config, createEscrowPrices, decimals, latestPrice}) => {
   return placedOrders;
 };
 
-module.exports = placeOrders;
+export default placeOrders;

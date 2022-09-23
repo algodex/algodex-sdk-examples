@@ -1,5 +1,5 @@
 const waitForOrders = require('./waitForOrders');
-const placeOrders = require('./placeOrders');
+const placeOrders = require('./placeOrders').default;
 const addOrdersToDB = require('./addOrdersToDB').default;
 
 const placeOrdersAndUpdateDB = async ({config, createEscrowPrices,
