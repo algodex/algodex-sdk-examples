@@ -1,9 +1,9 @@
 /* eslint-disable camelcase */
 
 
-jest.mock('./sleep', () => jest.fn(() => {
+jest.mock('./sleep', () => ({default: jest.fn(() => {
   return new Promise(resolve => resolve('did sleep'));
-}));
+})}));
 jest.mock('./placeOrdersAndUpdateDB', () => ({
   default: jest.fn(() => {
     return new Promise(resolve => resolve('did placeOrdersAndUpdateDB'));
@@ -12,9 +12,9 @@ jest.mock('./placeOrdersAndUpdateDB', () => ({
 jest.mock('./getCurrentState', () => ({default: jest.fn(() => {
   return new Promise(resolve => resolve(globalThis.currentState));
 })}));
-jest.mock('./getPlannedOrderChanges', () => jest.fn(() => {
+jest.mock('./getPlannedOrderChanges', () => ({default: jest.fn(() => {
   return new Promise(resolve => resolve(globalThis.plannedOrderChanges));
-}));
+})}));
 jest.mock('./cancelOrdersAndUpdateDB', () => ({
   default: jest.fn(() => {
     return new Promise(resolve => resolve('did cancelOrdersAndUpdateDB'));
@@ -23,10 +23,10 @@ jest.mock('./cancelOrdersAndUpdateDB', () => ({
 
 const runLoop = require('./runLoop').default;
 
-const sleep = require('./sleep');
+const sleep = require('./sleep').default;
 const placeOrdersAndUpdateDB = require('./placeOrdersAndUpdateDB').default;
 const getCurrentState = require('./getCurrentState').default;
-const getPlannedOrderChanges = require('./getPlannedOrderChanges');
+const getPlannedOrderChanges = require('./getPlannedOrderChanges').default;
 const cancelOrdersAndUpdateDB = require('./cancelOrdersAndUpdateDB').default;
 globalThis.currentState = {
   latestPrice: 5,

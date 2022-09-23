@@ -1,8 +1,18 @@
 import getCancelPromises from './getCancelPromises';
 import {cancelOrders} from './cancelOrders';
+import { BotConfig } from '../types/config';
+import { AllDocsResult } from '../types/order';
+import { EscrowToCancel } from './getEscrowsToCancelAndMake';
 
+interface CancelOrdersAndUpdateDB {
+  config:BotConfig
+  cancelSet:Set<String>
+  latestPrice:number
+  currentEscrows:AllDocsResult
+}
 const cancelOrdersAndUpdateDB =
-  async ({config, cancelSet, latestPrice, currentEscrows}) => {
+  async (input:CancelOrdersAndUpdateDB) => {
+    const {config, cancelSet, latestPrice, currentEscrows} = input;
     const {escrowDB, api} = config;
 
     const cancelPromises =

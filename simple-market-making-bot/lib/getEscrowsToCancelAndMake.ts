@@ -13,7 +13,7 @@ export interface EscrowToCancel {
 
 export interface EscrowsToCancelAndMake {
   createEscrowPrices:Array<EscrowToMake>,
-  cancelEscrowAddrs:Array<EscrowToCancel>
+  cancelEscrowAddrs:Array<string>
 }
 
 export const getEscrowsToCancelAndMake = ({escrows,
@@ -28,7 +28,7 @@ export const getEscrowsToCancelAndMake = ({escrows,
       address: escrow.doc._id,
     };
   });
-  const cancelEscrowAddrs:Array<EscrowToCancel> = escrowsTemp.filter(escrow => {
+  const cancelEscrowAddrs:Array<string> = escrowsTemp.filter(escrow => {
     if (escrow.price >
       (bidCancelPoint * (1+0.000501)) && escrow.type === 'buy') {
       return true;

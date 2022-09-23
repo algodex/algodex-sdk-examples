@@ -11,7 +11,7 @@ export interface PlannedOrderChangesInput {
 
 export interface PlannedOrderChanges {
   createEscrowPrices:EscrowToMake[]
-  cancelSet:Set<EscrowToCancel>
+  cancelSet:Set<string>
 }
 
 const getPlannedOrderChanges = (plannedOrderChanges:PlannedOrderChangesInput):PlannedOrderChanges => {
