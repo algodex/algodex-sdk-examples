@@ -28,5 +28,5 @@ npm run compile-and-start -- --assetId=<assetId>
 ## Testing
 
 ```
-jest
+npm run test
 ```
