@@ -39,6 +39,7 @@ export interface Contract {
   creator: string
   data: Data
   escrow: string
+  lsig?: {lsig: {logic:any}}
 }
 
 export interface Data {

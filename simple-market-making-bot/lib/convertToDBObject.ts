@@ -1,5 +1,6 @@
+import { Order } from "../types/order";
 
-const convertToDBObject = dbOrder => {
+const convertToDBObject = (dbOrder:Order):Order => {
   const obj = {
     unixTime: Math.round(Date.now()/1000),
     address: dbOrder.address,
@@ -15,7 +16,7 @@ const convertToDBObject = dbOrder => {
       parseInt(process.env.ALGODEX_ASA_ESCROW_APP!),
     contract: {
       creator: dbOrder.contract.creator,
-      data: dbOrder.contract.lsig.lsig.logic.toJSON(),
+      data: dbOrder.contract.lsig!.lsig.logic.toJSON(),
       escrow: dbOrder.contract.escrow,
     },
   };
