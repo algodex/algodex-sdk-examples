@@ -4,7 +4,7 @@
   "description": "Examples of using the Algodex SDK",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "rm -rf built && tsc && jest -- built"
   },
   "repository": {
     "type": "git",

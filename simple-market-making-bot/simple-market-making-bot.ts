@@ -5,6 +5,8 @@
  *
  */
 
+import { Config } from "./types/config";
+
 const args = require('minimist')(process.argv.slice(2));
 require('dotenv').config();
 const PouchDB = require('pouchdb');
@@ -56,9 +58,9 @@ if (!process.env.ORDER_ALGO_DEPTH) {
   throw new Error('ORDER_ALGO_DEPTH not set!');
 }
 const minSpreadPerc =
-  parseFloat(process.env.SPREAD_PERCENTAGE) || 0.0065; // FIXME
+  parseFloat(process.env.SPREAD_PERCENTAGE!) || 0.0065; // FIXME
 const nearestNeighborKeep =
-  parseFloat(process.env.NEAREST_NEIGHBOR_KEEP) || 0.0035; // FIXME
+  parseFloat(process.env.NEAREST_NEIGHBOR_KEEP!) || 0.0035; // FIXME
 // const escrowDB = new PouchDB('escrows');
 // const escrowDB = new PouchDB('http://admin:dex@127.0.0.1:5984/market_maker');
 const assetId = parseInt(args.assetId);
@@ -68,16 +70,16 @@ const pouchUrl = process.env.POUCHDB_URL ? process.env.POUCHDB_URL + '/' : '';
 const fullPouchUrl = pouchUrl + 'market_maker_' +
     assetId + '_' + walletAddr.slice(0, 8).toLowerCase();
 const escrowDB = new PouchDB(fullPouchUrl);
-const ladderTiers = parseInt(process.env.LADDER_TIERS) || 3;
+const ladderTiers = parseInt(process.env.LADDER_TIERS!) || 3;
 const useTinyMan = process.env.USE_TINYMAN &&
     process.env.USE_TINYMAN.toLowerCase() !== 'false' || false;
 const environment = process.env.ENVIRONMENT ===
     'mainnet' ? 'mainnet' : 'testnet';
-const orderAlgoDepth = process.env.ORDER_ALGO_DEPTH;
+const orderAlgoDepth = parseInt(process.env.ORDER_ALGO_DEPTH!);
 
 const api = initAPI(environment);
 
-const config = {assetId, walletAddr, minSpreadPerc, nearestNeighborKeep,
+const config:Config = {assetId, walletAddr, minSpreadPerc, nearestNeighborKeep,
   escrowDB, ladderTiers, useTinyMan, environment, orderAlgoDepth, api};
 Object.freeze(config);
 
