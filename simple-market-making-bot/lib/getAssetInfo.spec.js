@@ -1,4 +1,4 @@
-const getAssetInfo = require('./getAssetInfo');
+const getAssetInfo = require('./getAssetInfo').default;
 
 const assetInfo = {assetInfo: 'someInfo'};
 

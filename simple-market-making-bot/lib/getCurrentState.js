@@ -1,6 +1,6 @@
 const getLatestPrice = require('./getLatestPrice');
 const initWallet = require('./initWallet');
-const getAssetInfo = require('./getAssetInfo');
+const getAssetInfo = require('./getAssetInfo').default;
 const getCurrentOrders = require('./getCurrentOrders');
 const getOpenAccountSetFromAlgodex = require('./getOpenAccountSetFromAlgodex');
 
