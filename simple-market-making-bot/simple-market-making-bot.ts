@@ -18,7 +18,7 @@ const getOpenAccountSetFromAlgodex =
   require('./lib/getOpenAccountSetFromAlgodex').default;
 
 const {cancelOrders} = require('./lib/cancelOrders');
-const initAPI = require('./lib/initAPI');
+const initAPI = require('./lib/initAPI').default;
 const runLoop = require('./lib/runLoop').default;
 
 // app.set('host', '127.0.0.1');

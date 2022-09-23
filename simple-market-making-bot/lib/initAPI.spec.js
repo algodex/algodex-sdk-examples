@@ -1,4 +1,4 @@
-const initAPI = require('./initAPI');
+const initAPI = require('./initAPI').default;
 
 // const algodexApiMock = {
 //   setWallet: jest.fn(input =>  new Promise(resolve => resolve(input)))
