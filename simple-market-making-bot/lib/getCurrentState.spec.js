@@ -2,8 +2,8 @@ const getCurrentState = require('./getCurrentState');
 
 const assetInfo = {asset: {params: {decimals: 6}}};
 
-jest.mock('./getLatestPrice', () =>
-  jest.fn(() => new Promise(resolve => resolve('latestPriceResult'))));
+jest.mock('./getLatestPrice', () => ({default:
+  jest.fn(() => new Promise(resolve => resolve('latestPriceResult')))}));
 jest.mock('./initWallet', () =>
   jest.fn(() => new Promise(resolve => resolve('completed'))));
 jest.mock('./getAssetInfo', () => ({default:
@@ -13,7 +13,7 @@ jest.mock('./getCurrentOrders', () =>
 jest.mock('./getOpenAccountSetFromAlgodex', () =>
   jest.fn(() => new Promise(resolve => resolve('openAccountSet'))));
 
-const getLatestPrice = require('./getLatestPrice');
+const getLatestPrice = require('./getLatestPrice').default;
 const initWallet = require('./initWallet');
 const getAssetInfo = require('./getAssetInfo').default;
 const getCurrentOrders = require('./getCurrentOrders');

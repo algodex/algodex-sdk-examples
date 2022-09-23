@@ -1,4 +1,4 @@
-const getLatestPrice = require('./getLatestPrice');
+const getLatestPrice = require('./getLatestPrice').default;
 const initWallet = require('./initWallet');
 const getAssetInfo = require('./getAssetInfo').default;
 const getCurrentOrders = require('./getCurrentOrders');
