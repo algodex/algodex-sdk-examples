@@ -1,3 +1,4 @@
+import { BotDB } from '../../types/database';
 import convertToDBObject from '../convertToDBObject';
 
 interface ValidResult {
@@ -6,7 +7,7 @@ interface ValidResult {
   }
 }
 
-const addOrdersToDB = async (escrowDB:any, validResults: ValidResult[]) => {
+const addOrdersToDB = async (escrowDB:BotDB, validResults: ValidResult[]) => {
   const ordersAddToDB = validResults
       .filter(order => order[0].contract.amount > 0)
       .map(order => {

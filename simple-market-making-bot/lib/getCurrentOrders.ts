@@ -1,6 +1,7 @@
+import { BotDB } from "../types/database";
 import { AllDocsResult, OrderDoc } from "../types/order";
 
-const getCurrentOrders = async (escrowDB:any, indexer:any,
+const getCurrentOrders = async (escrowDB:BotDB, indexer:any,
     openAccountSet:Set<string>):Promise<AllDocsResult> => {
   const currentEscrows:AllDocsResult = await escrowDB.allDocs({include_docs: true});
   currentEscrows.rows.forEach(escrow => {

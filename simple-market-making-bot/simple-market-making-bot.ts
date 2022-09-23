@@ -20,6 +20,7 @@ import getOpenAccountSetFromAlgodex from './lib/getOpenAccountSetFromAlgodex';
 
 import initAPI from './lib/initAPI';
 import runLoop from './lib/runLoop';
+import { BotDB } from "./types/database";
 
 // app.set('host', '127.0.0.1');
 if (args.assetId == undefined ||
@@ -70,7 +71,7 @@ const walletAddr =
 const pouchUrl = process.env.POUCHDB_URL ? process.env.POUCHDB_URL + '/' : '';
 const fullPouchUrl = pouchUrl + 'market_maker_' +
     assetId + '_' + walletAddr.slice(0, 8).toLowerCase();
-const escrowDB = new PouchDB(fullPouchUrl);
+const escrowDB:BotDB = new PouchDB(fullPouchUrl);
 const ladderTiers = parseInt(process.env.LADDER_TIERS!) || 3;
 const useTinyMan = process.env.USE_TINYMAN &&
     process.env.USE_TINYMAN.toLowerCase() !== 'false' || false;
