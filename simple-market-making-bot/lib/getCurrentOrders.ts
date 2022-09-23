@@ -32,4 +32,4 @@ const getCurrentOrders = async (escrowDB, indexer, openAccountSet):Promise<AllDo
   return {rows: escrowsWithBalances};
 };
 
-module.exports = getCurrentOrders;
+export default getCurrentOrders;

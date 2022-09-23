@@ -1,9 +1,8 @@
-const getLatestPrice = require('./getLatestPrice').default;
-const initWallet = require('./initWallet').default;
-const getAssetInfo = require('./getAssetInfo').default;
-const getCurrentOrders = require('./getCurrentOrders');
-const getOpenAccountSetFromAlgodex =
-  require('./getOpenAccountSetFromAlgodex').default;
+import getLatestPrice from './getLatestPrice';
+import initWallet from './initWallet';
+import getAssetInfo from './getAssetInfo';
+import getCurrentOrders from './getCurrentOrders';
+import getOpenAccountSetFromAlgodex from './getOpenAccountSetFromAlgodex';
 
 const getCurrentState = async (config, assetInfo) => {
   const {assetId, walletAddr,

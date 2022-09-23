@@ -1,5 +1,5 @@
-const getCancelPromises = require('./getCancelPromises').default;
-const {cancelOrders} = require('./cancelOrders');
+import getCancelPromises from './getCancelPromises';
+import {cancelOrders} from './cancelOrders';
 
 const cancelOrdersAndUpdateDB =
   async ({config, cancelSet, latestPrice, currentEscrows}) => {

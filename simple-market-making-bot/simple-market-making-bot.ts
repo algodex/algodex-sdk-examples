@@ -13,7 +13,7 @@ const PouchDB = require('pouchdb');
 const algosdk = require('algosdk');
 const sleep = require('./lib/sleep');
 const getCancelPromises = require('./lib/getCancelPromises').default;
-const getCurrentOrders = require('./lib/getCurrentOrders');
+const getCurrentOrders = require('./lib/getCurrentOrders').default;
 const getOpenAccountSetFromAlgodex =
   require('./lib/getOpenAccountSetFromAlgodex').default;
 

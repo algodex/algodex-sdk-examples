@@ -1,4 +1,4 @@
-const {LogicSigAccount} = require('algosdk');
+import {LogicSigAccount} from'algosdk';
 
 const getCancelPromises = async ({escrows, cancelSet, api, latestPrice}) => {
   return escrows.rows.map(order => order.doc.order)

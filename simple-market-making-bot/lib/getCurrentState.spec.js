@@ -8,15 +8,15 @@ jest.mock('./initWallet', () => ({default:
   jest.fn(() => new Promise(resolve => resolve('completed')))}));
 jest.mock('./getAssetInfo', () => ({default:
   jest.fn(() => new Promise(resolve => resolve(assetInfo)))}));
-jest.mock('./getCurrentOrders', () =>
-  jest.fn(() => new Promise(resolve => resolve('currentEscrowsResult'))));
+jest.mock('./getCurrentOrders', () => ({default:
+  jest.fn(() => new Promise(resolve => resolve('currentEscrowsResult')))}));
 jest.mock('./getOpenAccountSetFromAlgodex', () => ({default:
   jest.fn(() => new Promise(resolve => resolve('openAccountSet')))}));
 
 const getLatestPrice = require('./getLatestPrice').default;
 const initWallet = require('./initWallet').default;
 const getAssetInfo = require('./getAssetInfo').default;
-const getCurrentOrders = require('./getCurrentOrders');
+const getCurrentOrders = require('./getCurrentOrders').default;
 const getOpenAccountSetFromAlgodex =
   require('./getOpenAccountSetFromAlgodex').default;
 
