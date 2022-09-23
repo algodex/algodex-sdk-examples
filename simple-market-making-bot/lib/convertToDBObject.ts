@@ -11,8 +11,8 @@ const convertToDBObject = dbOrder => {
     assetId: dbOrder.asset.id,
     type: dbOrder.type,
     appId: dbOrder.type === 'buy' ?
-      parseInt(process.env.ALGODEX_ALGO_ESCROW_APP) :
-      parseInt(process.env.ALGODEX_ASA_ESCROW_APP),
+      parseInt(process.env.ALGODEX_ALGO_ESCROW_APP!) :
+      parseInt(process.env.ALGODEX_ASA_ESCROW_APP!),
     contract: {
       creator: dbOrder.contract.creator,
       data: dbOrder.contract.lsig.lsig.logic.toJSON(),
@@ -22,4 +22,4 @@ const convertToDBObject = dbOrder => {
   return obj;
 };
 
-module.exports = convertToDBObject;
+export default convertToDBObject;

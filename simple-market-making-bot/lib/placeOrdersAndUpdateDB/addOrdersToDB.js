@@ -1,4 +1,4 @@
-const convertToDBObject = require('../convertToDBObject');
+const convertToDBObject = require('../convertToDBObject').default;
 
 const addOrdersToDB = async (escrowDB, validResults) => {
   const ordersAddToDB = validResults

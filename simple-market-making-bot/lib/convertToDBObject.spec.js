@@ -1,4 +1,4 @@
-const convertToDBObject = require('./convertToDBObject');
+const convertToDBObject = require('./convertToDBObject').default;
 
 test('converts correctly', () => {
   process.env.ALGODEX_ALGO_ESCROW_APP = '22045503';
