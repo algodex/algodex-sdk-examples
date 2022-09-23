@@ -6,7 +6,7 @@ import { EscrowToCancel } from './getEscrowsToCancelAndMake';
 
 interface CancelOrdersAndUpdateDB {
   config:BotConfig
-  cancelSet:Set<String>
+  cancelSet:Set<string>
   latestPrice:number
   currentEscrows:AllDocsResult
 }

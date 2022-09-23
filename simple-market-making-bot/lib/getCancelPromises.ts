@@ -1,13 +1,23 @@
 import {LogicSigAccount} from'algosdk';
+import { AllDocsResult } from '../types/order';
 
-const getCancelPromises = async ({escrows, cancelSet, api, latestPrice}) => {
+export interface GetCancelPromisesInput {
+  escrows: AllDocsResult
+  cancelSet: Set<string>
+  api: any
+  latestPrice: number
+}
+
+const getCancelPromises = async (input:GetCancelPromisesInput) => {
+  const {escrows, cancelSet, api, latestPrice} = input;
+
   return escrows.rows.map(order => order.doc.order)
-      .filter(order => cancelSet.has(order.escrowAddr))
+      .filter(order => cancelSet.has(order.escrowAddr!))
       .filter(order => order.contract.data !== undefined)
       .map(dbOrder => {
-        const cancelOrderObj = {...dbOrder};
+        const cancelOrderObj:any = {...dbOrder};
         cancelOrderObj.contract.lsig =
-          new LogicSigAccount(dbOrder.contract.data.data);
+          new LogicSigAccount(new Uint8Array(dbOrder.contract.data.data)); //FIXME
         cancelOrderObj.client = api.algod;
         cancelOrderObj.wallet = api.wallet;
         const tempOrder = {...cancelOrderObj};
