@@ -1,4 +1,4 @@
-const getTinymanPrice = require('./getTinymanPrice').default;
+import getTinymanPrice from './getTinymanPrice';
 const axios = require('axios');
 
 const getLatestPrice = async (assetId, environment, useTinyMan = false) => {
