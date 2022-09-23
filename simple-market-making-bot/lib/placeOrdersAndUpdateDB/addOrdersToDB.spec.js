@@ -1,4 +1,4 @@
-const addOrdersToDB = require('./addOrdersToDB');
+const addOrdersToDB = require('./addOrdersToDB').default;
 jest.mock('../convertToDBObject', () => ({
   default: jest.fn(order => {
     return order;

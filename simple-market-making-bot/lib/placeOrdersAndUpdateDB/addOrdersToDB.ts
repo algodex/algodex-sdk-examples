@@ -14,4 +14,4 @@ const addOrdersToDB = async (escrowDB, validResults) => {
   });
 };
 
-module.exports = addOrdersToDB;
+export default addOrdersToDB;
