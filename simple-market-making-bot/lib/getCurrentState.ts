@@ -3,8 +3,18 @@ import initWallet from './initWallet';
 import getAssetInfo from './getAssetInfo';
 import getCurrentOrders from './getCurrentOrders';
 import getOpenAccountSetFromAlgodex from './getOpenAccountSetFromAlgodex';
+import { BotConfig } from '../types/config';
+import { AllDocsResult } from '../types/order';
 
-const getCurrentState = async (config, assetInfo) => {
+export interface CurrentState {
+  latestPrice: number
+  currentEscrows: AllDocsResult
+  decimals: number
+  assetInfo: any
+  openAccountSet: Set<string>
+}
+
+const getCurrentState = async (config:BotConfig, assetInfo:any):Promise<CurrentState> => {
   const {assetId, walletAddr,
     escrowDB, useTinyMan, api, environment} = config;
 

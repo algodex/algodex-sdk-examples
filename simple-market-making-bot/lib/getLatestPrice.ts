@@ -1,7 +1,9 @@
+import { Environment } from '../types/config';
 import getTinymanPrice from './getTinymanPrice';
 const axios = require('axios');
 
-const getLatestPrice = async (assetId, environment, useTinyMan = false) => {
+const getLatestPrice = async (assetId:number, 
+    environment:Environment, useTinyMan:boolean = false):Promise<number> => {
   if (useTinyMan) {
     return await getTinymanPrice(assetId, environment);
   }

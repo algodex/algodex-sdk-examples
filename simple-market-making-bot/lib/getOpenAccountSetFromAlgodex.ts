@@ -1,8 +1,9 @@
+import { Environment } from "../types/config";
 
 const axios = require('axios');
 
 const getOpenAccountSetFromAlgodex =
-async (environment, walletAddr, assetId) => {
+async (environment:Environment, walletAddr:string, assetId:number):Promise<Set<string>> => {
   const url = environment == 'testnet' ?
     'https://testnet.algodex.com/algodex-backend/orders.php?ownerAddr='+walletAddr :
     'https://app.algodex.com/algodex-backend/orders.php?ownerAddr='+walletAddr;
