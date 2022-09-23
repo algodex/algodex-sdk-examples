@@ -1,4 +1,4 @@
-const getCurrentState = require('./getCurrentState');
+const getCurrentState = require('./getCurrentState').default;
 
 const assetInfo = {asset: {params: {decimals: 6}}};
 
