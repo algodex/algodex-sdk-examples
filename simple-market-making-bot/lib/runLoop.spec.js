@@ -21,7 +21,7 @@ jest.mock('./cancelOrdersAndUpdateDB', () => ({
   }),
 }));
 
-const runLoop = require('./runLoop');
+const runLoop = require('./runLoop').default;
 
 const sleep = require('./sleep');
 const placeOrdersAndUpdateDB = require('./placeOrdersAndUpdateDB').default;
