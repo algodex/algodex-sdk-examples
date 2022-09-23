@@ -1,6 +1,16 @@
 import orderDepthAmounts from '../../order-depth-amounts';
+import { BotConfig } from '../../types/config';
+import { EscrowToMake } from '../getEscrowsToCancelAndMake';
 
-const placeOrders = ({config, createEscrowPrices, decimals, latestPrice}) => {
+interface PlaceOrderInput {
+  config: BotConfig
+  createEscrowPrices: EscrowToMake[]
+  decimals: number
+  latestPrice: number
+}
+
+const placeOrders = (input:PlaceOrderInput) => {
+  const {config, createEscrowPrices, decimals, latestPrice} = input;
   const {assetId, orderAlgoDepth, api} = config;
 
   const placedOrders = createEscrowPrices.map(priceObj => {

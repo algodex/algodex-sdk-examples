@@ -1,6 +1,6 @@
 type Environment = 'mainnet' | 'testnet';
 
-export interface Config {
+export interface BotConfig {
   assetId:number,
   walletAddr:string,
   minSpreadPerc:number,

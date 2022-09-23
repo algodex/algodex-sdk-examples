@@ -5,7 +5,7 @@
  *
  */
 
-import { Config } from "./types/config";
+import { BotConfig } from "./types/config";
 
 const args = require('minimist')(process.argv.slice(2));
 require('dotenv').config();
@@ -79,7 +79,7 @@ const orderAlgoDepth = parseInt(process.env.ORDER_ALGO_DEPTH!);
 
 const api = initAPI(environment);
 
-const config:Config = {assetId, walletAddr, minSpreadPerc, nearestNeighborKeep,
+const config:BotConfig = {assetId, walletAddr, minSpreadPerc, nearestNeighborKeep,
   escrowDB, ladderTiers, useTinyMan, environment, orderAlgoDepth, api};
 Object.freeze(config);
 

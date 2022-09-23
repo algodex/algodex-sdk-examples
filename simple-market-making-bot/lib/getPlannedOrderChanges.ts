@@ -1,10 +1,10 @@
 import {getEscrowsToCancelAndMake, EscrowToCancel, EscrowToMake } from './getEscrowsToCancelAndMake';
 import getIdealPrices from './getIdealPrices';
-import { Config } from "../types/config";
+import { BotConfig } from "../types/config";
 import { AllDocsResult } from "../types/order";
 
 export interface PlannedOrderChangesInput {
-  config:Config
+  config:BotConfig
   currentEscrows: AllDocsResult
   latestPrice: number
 }
