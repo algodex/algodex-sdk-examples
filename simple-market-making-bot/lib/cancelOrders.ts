@@ -1,3 +1,4 @@
+import { BotDB } from "../types/database";
 import { AllDocsResult } from "../types/order";
 
 interface CancelResult {
@@ -5,7 +6,7 @@ interface CancelResult {
 }
 
 
-export const convertCancelResultsToDBPromises = (escrowDB:any, results:CancelResult[][],
+export const convertCancelResultsToDBPromises = (escrowDB:BotDB, results:CancelResult[][],
     orders:AllDocsResult) => {
   const addrs = results.map(result => result[0].escrowAddr);
   const resultAddrs = new Set(addrs);
@@ -18,7 +19,7 @@ export const convertCancelResultsToDBPromises = (escrowDB:any, results:CancelRes
   return removeFromDBPromises;
 };
 
-export const cancelOrders = async (escrowDB:any, orders:AllDocsResult, cancelPromises:any) => {
+export const cancelOrders = async (escrowDB:BotDB, orders:AllDocsResult, cancelPromises:any) => {
   return await Promise.all(cancelPromises).then(async function(results) {
     const removeFromDBPromises =
       convertCancelResultsToDBPromises(escrowDB, results, orders);

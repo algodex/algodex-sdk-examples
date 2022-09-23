@@ -1,3 +1,5 @@
+import { BotDB } from "./database";
+
 type Environment = 'mainnet' | 'testnet';
 
 export interface BotConfig {
@@ -5,7 +7,7 @@ export interface BotConfig {
   walletAddr:string,
   minSpreadPerc:number,
   nearestNeighborKeep:number,
-  escrowDB:any,
+  escrowDB:BotDB,
   ladderTiers:number,
   useTinyMan:boolean,
   environment:Environment,
