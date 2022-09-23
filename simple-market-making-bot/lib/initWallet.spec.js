@@ -1,4 +1,4 @@
-const initWallet = require('./initWallet');
+const initWallet = require('./initWallet').default;
 const algosdk = require('algosdk');
 
 const algodexApiMock = {
