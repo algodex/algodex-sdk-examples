@@ -1,4 +1,4 @@
-const getIdealPrices = require('./getIdealPrices');
+const getIdealPrices = require('./getIdealPrices').default;
 
 test('verify ideal prices are fine', () => {
   const latestPrice = 12.5;

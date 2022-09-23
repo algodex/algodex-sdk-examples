@@ -1,5 +1,5 @@
 const {getEscrowsToCancelAndMake} = require('./getEscrowsToCancelAndMake');
-const getIdealPrices = require('./getIdealPrices');
+const getIdealPrices = require('./getIdealPrices').default;
 
 const escrows = [
   {doc: {order: {price: 12.3, type: 'buy'},

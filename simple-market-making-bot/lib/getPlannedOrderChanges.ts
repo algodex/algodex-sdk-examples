@@ -1,5 +1,5 @@
 import {getEscrowsToCancelAndMake, EscrowToCancel, EscrowToMake } from './getEscrowsToCancelAndMake';
-const getIdealPrices = require('./getIdealPrices');
+import getIdealPrices from './getIdealPrices';
 import { Config } from "../types/config";
 import { AllDocsResult } from "../types/order";
 
