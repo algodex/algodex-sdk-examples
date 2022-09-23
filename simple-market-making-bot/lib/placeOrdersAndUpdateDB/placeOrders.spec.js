@@ -1,4 +1,4 @@
-const placeOrders = require('./placeOrders');
+const placeOrders = require('./placeOrders').default;
 
 // Mock algodex SDK api
 const api = {

@@ -202,7 +202,8 @@ const run = async(api, config, environment, walletAddr) => {
   const orders = await getOpenOrders(config, environment, walletAddr);
   const promises = [];
   for (let i = 0; i < orders.length; i++) {
-    const exists = await getAccountExistsFromIndexer(orders[i].escrowAddress, api.indexer);
+    const exists =
+      await getAccountExistsFromIndexer(orders[i].escrowAddress, api.indexer);
     if (!exists) {
       console.error('Account ' + orders[i].escrowAddress + ' doesnt exist!');
       continue;

@@ -1,10 +1,20 @@
-const getLatestPrice = require('./getLatestPrice');
-const initWallet = require('./initWallet');
-const getAssetInfo = require('./getAssetInfo');
-const getCurrentOrders = require('./getCurrentOrders');
-const getOpenAccountSetFromAlgodex = require('./getOpenAccountSetFromAlgodex');
+import getLatestPrice from './getLatestPrice';
+import initWallet from './initWallet';
+import getAssetInfo from './getAssetInfo';
+import getCurrentOrders from './getCurrentOrders';
+import getOpenAccountSetFromAlgodex from './getOpenAccountSetFromAlgodex';
+import { BotConfig } from '../types/config';
+import { AllDocsResult } from '../types/order';
 
-const getCurrentState = async (config, assetInfo) => {
+export interface CurrentState {
+  latestPrice: number
+  currentEscrows: AllDocsResult
+  decimals: number
+  assetInfo: any
+  openAccountSet: Set<string>
+}
+
+const getCurrentState = async (config:BotConfig, assetInfo:any):Promise<CurrentState> => {
   const {assetId, walletAddr,
     escrowDB, useTinyMan, api, environment} = config;
 
@@ -25,4 +35,4 @@ const getCurrentState = async (config, assetInfo) => {
   return {latestPrice, currentEscrows, decimals, assetInfo, openAccountSet};
 };
 
-module.exports = getCurrentState;
+export default getCurrentState;

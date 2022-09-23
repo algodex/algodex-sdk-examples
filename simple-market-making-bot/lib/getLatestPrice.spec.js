@@ -1,4 +1,4 @@
-const getLatestPrice = require('./getLatestPrice');
+const getLatestPrice = require('./getLatestPrice').default;
 
 jest.mock('axios', req => jest.fn(req => {
   if (req.url === 'https://testnet.algodex.com/algodex-backend/assets.php') {

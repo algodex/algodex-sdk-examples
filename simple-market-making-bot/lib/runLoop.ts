@@ -1,9 +1,16 @@
-const sleep = require('./sleep');
-const placeOrdersAndUpdateDB = require('./placeOrdersAndUpdateDB');
-const getCurrentState = require('./getCurrentState');
-const getPlannedOrderChanges = require('./getPlannedOrderChanges');
-const cancelOrdersAndUpdateDB = require('./cancelOrdersAndUpdateDB');
+import sleep from './sleep';
+import placeOrdersAndUpdateDB from './placeOrdersAndUpdateDB';
+import getCurrentState, { CurrentState } from './getCurrentState';
+import getPlannedOrderChanges from './getPlannedOrderChanges';
+import cancelOrdersAndUpdateDB from './cancelOrdersAndUpdateDB';
+import { BotConfig } from '../types/config';
 
+export interface RunLoopInput {
+  assetInfo: any
+  config: BotConfig
+  lastBlock: number
+  runState: CurrentState
+}
 const runLoop = async ({assetInfo, config, lastBlock, runState}) => {
   // const {assetId, walletAddr, minSpreadPerc, nearestNeighborKeep,
   //   escrowDB, ladderTiers, useTinyMan, api,
@@ -43,4 +50,4 @@ const runLoop = async ({assetInfo, config, lastBlock, runState}) => {
   runLoop({assetInfo, config, lastBlock, runState});
 };
 
-module.exports = runLoop;
+export default runLoop;

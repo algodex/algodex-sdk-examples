@@ -1,4 +1,4 @@
-const initWallet = async (algodexApi, walletAddr) => {
+const initWallet = async (algodexApi:any, walletAddr:string):Promise<any> => {
   await algodexApi.setWallet({
     'type': 'sdk',
     'address': walletAddr,
@@ -8,4 +8,4 @@ const initWallet = async (algodexApi, walletAddr) => {
   });
 };
 
-module.exports = initWallet;
+export default initWallet;

@@ -1,7 +1,7 @@
 
 // eslint-disable-next-line require-jsdoc
-function sleep(ms) {
+function sleep(ms:number):Promise<NodeJS.Timeout> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-module.exports = sleep;
+export default sleep;

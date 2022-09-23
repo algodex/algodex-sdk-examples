@@ -22,11 +22,11 @@ Edit the .env file to your Algorand node and indexer endpoints, and add in your 
 ## Running
 
 ```
-node simple-market-making-bot/simple-market-making-bot.js --assetId=<assetId>
+npm run compile-and-start -- --assetId=<assetId>
 ```
 
 ## Testing
 
 ```
-jest
+npm run test
 ```

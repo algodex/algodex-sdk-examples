@@ -1,29 +1,33 @@
 /* eslint-disable camelcase */
 
 
-jest.mock('./sleep', () => jest.fn(() => {
+jest.mock('./sleep', () => ({default: jest.fn(() => {
   return new Promise(resolve => resolve('did sleep'));
+})}));
+jest.mock('./placeOrdersAndUpdateDB', () => ({
+  default: jest.fn(() => {
+    return new Promise(resolve => resolve('did placeOrdersAndUpdateDB'));
+  }),
 }));
-jest.mock('./placeOrdersAndUpdateDB', () => jest.fn(() => {
-  return new Promise(resolve => resolve('did placeOrdersAndUpdateDB'));
-}));
-jest.mock('./getCurrentState', () => jest.fn(() => {
+jest.mock('./getCurrentState', () => ({default: jest.fn(() => {
   return new Promise(resolve => resolve(globalThis.currentState));
-}));
-jest.mock('./getPlannedOrderChanges', () => jest.fn(() => {
+})}));
+jest.mock('./getPlannedOrderChanges', () => ({default: jest.fn(() => {
   return new Promise(resolve => resolve(globalThis.plannedOrderChanges));
-}));
-jest.mock('./cancelOrdersAndUpdateDB', () => jest.fn(() => {
-  return new Promise(resolve => resolve('did cancelOrdersAndUpdateDB'));
+})}));
+jest.mock('./cancelOrdersAndUpdateDB', () => ({
+  default: jest.fn(() => {
+    return new Promise(resolve => resolve('did cancelOrdersAndUpdateDB'));
+  }),
 }));
 
-const runLoop = require('./runLoop');
+const runLoop = require('./runLoop').default;
 
-const sleep = require('./sleep');
-const placeOrdersAndUpdateDB = require('./placeOrdersAndUpdateDB');
-const getCurrentState = require('./getCurrentState');
-const getPlannedOrderChanges = require('./getPlannedOrderChanges');
-const cancelOrdersAndUpdateDB = require('./cancelOrdersAndUpdateDB');
+const sleep = require('./sleep').default;
+const placeOrdersAndUpdateDB = require('./placeOrdersAndUpdateDB').default;
+const getCurrentState = require('./getCurrentState').default;
+const getPlannedOrderChanges = require('./getPlannedOrderChanges').default;
+const cancelOrdersAndUpdateDB = require('./cancelOrdersAndUpdateDB').default;
 globalThis.currentState = {
   latestPrice: 5,
   currentEscrows: ['escrowobj1', 'escrowobj2'],

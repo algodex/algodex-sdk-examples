@@ -1,4 +1,4 @@
-const sleep = require('./sleep');
+const sleep = require('./sleep').default;
 
 // eslint-disable-next-line no-unused-vars
 const callback = ms => {

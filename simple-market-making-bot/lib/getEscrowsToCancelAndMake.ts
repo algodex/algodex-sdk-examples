@@ -1,7 +1,34 @@
+import { Order } from "../types/order";
 
-const getEscrowsToCancelAndMake = ({escrows,
+export type OrderType = 'buy' | 'sell';
+
+export interface EscrowToMake {
+  price:number,
+  type:OrderType
+}
+
+export interface EscrowToCancel {
+  price:number,
+  type:OrderType,
+  address:string
+}
+
+export interface EscrowsToCancelAndMake {
+  createEscrowPrices:Array<EscrowToMake>,
+  cancelEscrowAddrs:Array<string>
+}
+
+export interface GetEscrowsToCancelAndMakeInput {
+  escrows: Order[]
+  latestPrice: number
+  minSpreadPerc: number
+  nearestNeighborKeep: number
+  idealPrices: number[]
+}
+
+export const getEscrowsToCancelAndMake = ({escrows,
   latestPrice, minSpreadPerc, nearestNeighborKeep,
-  idealPrices}) => {
+  idealPrices}):EscrowsToCancelAndMake => {
   const bidCancelPoint = latestPrice * (1 - minSpreadPerc);
   const askCancelPoint = latestPrice * (1 + minSpreadPerc);
   const escrowsTemp = escrows.map(escrow => {
@@ -11,7 +38,7 @@ const getEscrowsToCancelAndMake = ({escrows,
       address: escrow.doc._id,
     };
   });
-  const cancelEscrowAddrs = escrowsTemp.filter(escrow => {
+  const cancelEscrowAddrs:Array<string> = escrowsTemp.filter(escrow => {
     if (escrow.price >
       (bidCancelPoint * (1+0.000501)) && escrow.type === 'buy') {
       return true;
@@ -30,7 +57,7 @@ const getEscrowsToCancelAndMake = ({escrows,
   const remainingEscrows =
       escrowsTemp.filter(escrow => !cancelAddrSet.has(escrow.address));
 
-  const createEscrowPrices = idealPrices.filter(idealPrice => {
+  const createEscrowPrices:Array<EscrowToMake> = idealPrices.filter(idealPrice => {
     if (remainingEscrows.find(escrow =>
       Math.abs((idealPrice - escrow.price)/escrow.price) <
       nearestNeighborKeep)) {
@@ -46,5 +73,3 @@ const getEscrowsToCancelAndMake = ({escrows,
 
   return {createEscrowPrices, cancelEscrowAddrs};
 };
-
-module.exports = getEscrowsToCancelAndMake;

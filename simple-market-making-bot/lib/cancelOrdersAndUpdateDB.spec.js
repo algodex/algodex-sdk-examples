@@ -1,21 +1,23 @@
-const cancelOrdersAndUpdateDB = require('./cancelOrdersAndUpdateDB');
+const cancelOrdersAndUpdateDB = require('./cancelOrdersAndUpdateDB').default;
 
 globalThis.cancelled = 0;
 
-jest.mock('./getCancelPromises', () => jest.fn(input => {
+jest.mock('./getCancelPromises', () => ({default: jest.fn(input => {
   return input.escrows.filter(escrow => input.cancelSet.has(escrow))
       .map(escrow => new Promise( resolve => {
         resolve('cancelled order');
         globalThis.cancelled++;
       }));
-}));
-jest.mock('./cancelOrders', () => jest.fn((escrowDB,
-    currentEscrows, cancelPromises) => {
-  return Promise.all(cancelPromises);
+})}));
+jest.mock('./cancelOrders', () => ({
+  cancelOrders: jest.fn((escrowDB,
+      currentEscrows, cancelPromises) => {
+    return Promise.all(cancelPromises);
+  }),
 }));
 
-const cancelOrders = require('./cancelOrders');
-const getCancelPromises = require('./getCancelPromises');
+const {cancelOrders} = require('./cancelOrders');
+const getCancelPromises = require('./getCancelPromises').default;
 
 // eslint-disable-next-line require-jsdoc
 function isPromise(p) {

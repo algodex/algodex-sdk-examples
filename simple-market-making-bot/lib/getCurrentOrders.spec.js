@@ -1,4 +1,4 @@
-const getCurrentOrders = require('./getCurrentOrders');
+const getCurrentOrders = require('./getCurrentOrders').default;
 
 const dbOrders = {rows: [{doc:
   {

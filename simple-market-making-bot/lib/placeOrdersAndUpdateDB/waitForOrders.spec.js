@@ -1,4 +1,4 @@
-const waitForOrders = require('./waitForOrders');
+const waitForOrders = require('./waitForOrders').default;
 
 test('Can wait for orders', async () => {
   const ordersToPlace = [

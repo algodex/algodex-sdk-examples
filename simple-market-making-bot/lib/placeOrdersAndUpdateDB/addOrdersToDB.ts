@@ -1,6 +1,12 @@
-const convertToDBObject = require('../convertToDBObject');
+import convertToDBObject from '../convertToDBObject';
 
-const addOrdersToDB = async (escrowDB, validResults) => {
+interface ValidResult {
+  contract: {
+      amount: number
+  }
+}
+
+const addOrdersToDB = async (escrowDB:any, validResults: ValidResult[]) => {
   const ordersAddToDB = validResults
       .filter(order => order[0].contract.amount > 0)
       .map(order => {
@@ -14,4 +20,4 @@ const addOrdersToDB = async (escrowDB, validResults) => {
   });
 };
 
-module.exports = addOrdersToDB;
+export default addOrdersToDB;

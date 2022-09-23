@@ -1,4 +1,12 @@
-const convertCancelResultsToDBPromises = (escrowDB, results, orders) => {
+import { AllDocsResult } from "../types/order";
+
+interface CancelResult {
+    escrowAddr:string;
+}
+
+
+export const convertCancelResultsToDBPromises = (escrowDB:any, results:CancelResult[][],
+    orders:AllDocsResult) => {
   const addrs = results.map(result => result[0].escrowAddr);
   const resultAddrs = new Set(addrs);
   const removeFromDBPromises = orders.rows
@@ -10,7 +18,7 @@ const convertCancelResultsToDBPromises = (escrowDB, results, orders) => {
   return removeFromDBPromises;
 };
 
-const cancelOrders = async (escrowDB, orders, cancelPromises) => {
+export const cancelOrders = async (escrowDB:any, orders:AllDocsResult, cancelPromises:any) => {
   return await Promise.all(cancelPromises).then(async function(results) {
     const removeFromDBPromises =
       convertCancelResultsToDBPromises(escrowDB, results, orders);
@@ -23,8 +31,3 @@ const cancelOrders = async (escrowDB, orders, cancelPromises) => {
   });
 };
 
-if (process.env.NODE_ENV === 'test') {
-  module.exports = {cancelOrders, convertCancelResultsToDBPromises};
-} else {
-  module.exports = cancelOrders;
-}

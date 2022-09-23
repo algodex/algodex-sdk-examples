@@ -1,4 +1,5 @@
-const getAccountExistsFromIndexer = require('./getAccountExistsFromIndexer');
+const getAccountExistsFromIndexer =
+  require('./getAccountExistsFromIndexer').default;
 
 const accountInfo = {account: {amount: 4000}};
 
@@ -32,7 +33,7 @@ test('gets account that doesnt exist', async () => {
   // const accountInfo = await indexer.lookupAccountByID('asdsadas').do();
   const accountInfoFromIndexer =
       await getAccountExistsFromIndexer('wrongaccount', mockIndexer);
-  expect(accountInfoFromIndexer).toBe(undefined);
+  expect(accountInfoFromIndexer).toBe(false);
   const lastCall = mockIndexer.lookupAccountByID.mock.calls.length - 1;
   expect(mockIndexer.lookupAccountByID.mock.calls[lastCall][0]).
       toBe('wrongaccount');

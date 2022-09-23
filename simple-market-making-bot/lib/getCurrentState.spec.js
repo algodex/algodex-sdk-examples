@@ -1,23 +1,24 @@
-const getCurrentState = require('./getCurrentState');
+const getCurrentState = require('./getCurrentState').default;
 
 const assetInfo = {asset: {params: {decimals: 6}}};
 
-jest.mock('./getLatestPrice', () =>
-  jest.fn(() => new Promise(resolve => resolve('latestPriceResult'))));
-jest.mock('./initWallet', () =>
-  jest.fn(() => new Promise(resolve => resolve('completed'))));
-jest.mock('./getAssetInfo', () =>
-  jest.fn(() => new Promise(resolve => resolve(assetInfo))));
-jest.mock('./getCurrentOrders', () =>
-  jest.fn(() => new Promise(resolve => resolve('currentEscrowsResult'))));
-jest.mock('./getOpenAccountSetFromAlgodex', () =>
-  jest.fn(() => new Promise(resolve => resolve('openAccountSet'))));
+jest.mock('./getLatestPrice', () => ({default:
+  jest.fn(() => new Promise(resolve => resolve('latestPriceResult')))}));
+jest.mock('./initWallet', () => ({default:
+  jest.fn(() => new Promise(resolve => resolve('completed')))}));
+jest.mock('./getAssetInfo', () => ({default:
+  jest.fn(() => new Promise(resolve => resolve(assetInfo)))}));
+jest.mock('./getCurrentOrders', () => ({default:
+  jest.fn(() => new Promise(resolve => resolve('currentEscrowsResult')))}));
+jest.mock('./getOpenAccountSetFromAlgodex', () => ({default:
+  jest.fn(() => new Promise(resolve => resolve('openAccountSet')))}));
 
-const getLatestPrice = require('./getLatestPrice');
-const initWallet = require('./initWallet');
-const getAssetInfo = require('./getAssetInfo');
-const getCurrentOrders = require('./getCurrentOrders');
-const getOpenAccountSetFromAlgodex = require('./getOpenAccountSetFromAlgodex');
+const getLatestPrice = require('./getLatestPrice').default;
+const initWallet = require('./initWallet').default;
+const getAssetInfo = require('./getAssetInfo').default;
+const getCurrentOrders = require('./getCurrentOrders').default;
+const getOpenAccountSetFromAlgodex =
+  require('./getOpenAccountSetFromAlgodex').default;
 
 test('Calls all state initialization functions', async () => {
   const config = {

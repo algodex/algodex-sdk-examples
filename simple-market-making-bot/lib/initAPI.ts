@@ -1,6 +1,8 @@
+import { Environment } from "../types/config";
+
 const AlgodexAPI = require('@algodex/algodex-sdk');
 
-const initAPI = environment => {
+const initAPI = (environment:Environment):any => {
   return new AlgodexAPI({config: {
     'algod': {
       'uri': process.env.ALGOD_SERVER,
@@ -26,4 +28,4 @@ const initAPI = environment => {
   }});
 };
 
-module.exports = initAPI;
+export default initAPI;

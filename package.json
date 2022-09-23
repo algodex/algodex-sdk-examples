@@ -4,7 +4,9 @@
   "description": "Examples of using the Algodex SDK",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "rm -rf built && tsc && jest -- built",
+    "compile-and-start": "rm -rf built && tsc && node built/simple-market-making-bot/simple-market-making-bot.js",
+    "start": "node built/simple-market-making-bot/simple-market-making-bot.js"
   },
   "repository": {
     "type": "git",

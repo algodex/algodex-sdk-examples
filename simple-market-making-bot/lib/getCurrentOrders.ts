@@ -1,10 +1,12 @@
+import { AllDocsResult, OrderDoc } from "../types/order";
 
-const getCurrentOrders = async (escrowDB, indexer, openAccountSet) => {
-  const currentEscrows = await escrowDB.allDocs({include_docs: true});
+const getCurrentOrders = async (escrowDB:any, indexer:any,
+    openAccountSet:Set<string>):Promise<AllDocsResult> => {
+  const currentEscrows:AllDocsResult = await escrowDB.allDocs({include_docs: true});
   currentEscrows.rows.forEach(escrow => {
     escrow.doc.order.escrowAddr = escrow.doc._id;
   });
-  const escrowsWithBalances = [];
+  const escrowsWithBalances:Array<OrderDoc> = [];
   const currentUnixTime = Math.round(Date.now()/1000);
   for (let i = 0; i < currentEscrows.rows.length; i++) {
     const escrow = currentEscrows.rows[i];
@@ -18,7 +20,7 @@ const getCurrentOrders = async (escrowDB, indexer, openAccountSet) => {
   }
   const hasBalanceSet =
     new Set(escrowsWithBalances.map(escrow => escrow.doc.order.escrowAddr));
-  const removeFromDBPromises = [];
+  const removeFromDBPromises:Array<any> = [];
   currentEscrows.rows.forEach(async escrow => {
     const addr = escrow.doc.order.escrowAddr;
     if (!hasBalanceSet.has(addr)) {
@@ -31,4 +33,4 @@ const getCurrentOrders = async (escrowDB, indexer, openAccountSet) => {
   return {rows: escrowsWithBalances};
 };
 
-module.exports = getCurrentOrders;
+export default getCurrentOrders;

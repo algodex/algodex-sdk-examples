@@ -1,4 +1,5 @@
-const getOpenAccountSetFromAlgodex = require('./getOpenAccountSetFromAlgodex');
+const getOpenAccountSetFromAlgodex =
+  require('./getOpenAccountSetFromAlgodex').default;
 jest.mock('axios', req => jest.fn(req => {
   if (req.url.includes('orders')) {
     return {data:

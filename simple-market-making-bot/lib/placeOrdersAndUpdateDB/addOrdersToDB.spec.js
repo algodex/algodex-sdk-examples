@@ -1,8 +1,10 @@
-const addOrdersToDB = require('./addOrdersToDB');
-const convertToDBObject = require('../convertToDBObject');
-jest.mock('../convertToDBObject', order => jest.fn(order => {
-  return order;
+const addOrdersToDB = require('./addOrdersToDB').default;
+jest.mock('../convertToDBObject', () => ({
+  default: jest.fn(order => {
+    return order;
+  }),
 }));
+const convertToDBObject = require('../convertToDBObject').default;
 
 const escrowDB = {
   put: jest.fn(doc => new Promise(resolve => resolve('addedToDB'))),

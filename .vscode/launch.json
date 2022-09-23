@@ -8,7 +8,7 @@
           "skipFiles": [
               "<node_internals>/**"
           ],
-          "program": "${workspaceFolder}/simple-market-making-bot/simple-market-making-bot",
+          "program": "${workspaceFolder}/built/simple-market-making-bot/simple-market-making-bot.js",
           "args": ["--assetId=15322902"]
       },
       {
