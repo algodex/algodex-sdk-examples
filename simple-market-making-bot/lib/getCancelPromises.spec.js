@@ -1,4 +1,4 @@
-const getCancelPromises = require('./getCancelPromises');
+const getCancelPromises = require('./getCancelPromises').default;
 // const {LogicSigAccount} = require('algosdk');
 
 

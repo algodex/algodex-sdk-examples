@@ -12,7 +12,7 @@ require('dotenv').config();
 const PouchDB = require('pouchdb');
 const algosdk = require('algosdk');
 const sleep = require('./lib/sleep');
-const getCancelPromises = require('./lib/getCancelPromises');
+const getCancelPromises = require('./lib/getCancelPromises').default;
 const getCurrentOrders = require('./lib/getCurrentOrders');
 const getOpenAccountSetFromAlgodex =
   require('./lib/getOpenAccountSetFromAlgodex').default;
