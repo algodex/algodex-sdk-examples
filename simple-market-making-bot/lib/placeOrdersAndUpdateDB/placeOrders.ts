@@ -1,4 +1,4 @@
-const orderDepthAmounts = require('../../order-depth-amounts').default;
+import orderDepthAmounts from '../../order-depth-amounts';
 
 const placeOrders = ({config, createEscrowPrices, decimals, latestPrice}) => {
   const {assetId, orderAlgoDepth, api} = config;

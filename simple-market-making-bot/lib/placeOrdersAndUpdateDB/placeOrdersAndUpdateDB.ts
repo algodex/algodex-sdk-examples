@@ -1,6 +1,6 @@
-const waitForOrders = require('./waitForOrders').default;
-const placeOrders = require('./placeOrders').default;
-const addOrdersToDB = require('./addOrdersToDB').default;
+import waitForOrders from './waitForOrders';
+import placeOrders from './placeOrders';
+import addOrdersToDB from './addOrdersToDB';
 
 const placeOrdersAndUpdateDB = async ({config, createEscrowPrices,
   decimals, latestPrice}) => {
