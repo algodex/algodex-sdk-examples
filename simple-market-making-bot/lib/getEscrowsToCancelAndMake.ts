@@ -16,7 +16,7 @@ export interface EscrowsToCancelAndMake {
   cancelEscrowAddrs:Array<EscrowToCancel>
 }
 
-const getEscrowsToCancelAndMake = ({escrows,
+export const getEscrowsToCancelAndMake = ({escrows,
   latestPrice, minSpreadPerc, nearestNeighborKeep,
   idealPrices}):EscrowsToCancelAndMake => {
   const bidCancelPoint = latestPrice * (1 - minSpreadPerc);
@@ -63,7 +63,3 @@ const getEscrowsToCancelAndMake = ({escrows,
 
   return {createEscrowPrices, cancelEscrowAddrs};
 };
-
-module.exports = getEscrowsToCancelAndMake;
-
-export {};

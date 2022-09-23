@@ -1,4 +1,4 @@
-const getEscrowsToCancelAndMake = require('./getEscrowsToCancelAndMake');
+const {getEscrowsToCancelAndMake} = require('./getEscrowsToCancelAndMake');
 const getIdealPrices = require('./getIdealPrices');
 
 const escrows = [

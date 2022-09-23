@@ -1,13 +1,16 @@
-const getPlannedOrderChanges = require('./getPlannedOrderChanges');
+const getPlannedOrderChanges = require('./getPlannedOrderChanges').default;
 
-jest.mock('./getEscrowsToCancelAndMake', () => jest.fn(() => {
+jest.mock('./getEscrowsToCancelAndMake', () => {return {
+  getEscrowsToCancelAndMake: jest.fn(() => {
   return {createEscrowPrices: [44.1, 44.2, 44.3],
     cancelEscrowAddrs: ['algorand addr1']};
-}));
+})}}
+);
 jest.mock('./getIdealPrices', () => jest.fn(() => {
   return [44.1, 44.2, 44.3, 44.4];
 }));
-const getEscrowsToCancelAndMake = require('./getEscrowsToCancelAndMake');
+const { getEscrowsToCancelAndMake } =
+  require('./getEscrowsToCancelAndMake');
 const getIdealPrices = require('./getIdealPrices');
 
 test('Can get planned order changes', () => {

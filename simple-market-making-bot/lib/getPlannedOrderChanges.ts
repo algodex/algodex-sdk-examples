@@ -1,16 +1,17 @@
-const getEscrowsToCancelAndMake = require('./getEscrowsToCancelAndMake');
+import {getEscrowsToCancelAndMake, EscrowToCancel, EscrowToMake } from './getEscrowsToCancelAndMake';
 const getIdealPrices = require('./getIdealPrices');
 import { Config } from "../types/config";
 import { AllDocsResult } from "../types/order";
 
 export interface PlannedOrderChangesInput {
-  config:Config,
-  currentEscrows: AllDocsResult,
+  config:Config
+  currentEscrows: AllDocsResult
   latestPrice: number
 }
 
 export interface PlannedOrderChanges {
-  
+  createEscrowPrices:EscrowToMake[]
+  cancelSet:Set<EscrowToCancel>
 }
 
 const getPlannedOrderChanges = (plannedOrderChanges:PlannedOrderChangesInput):PlannedOrderChanges => {
@@ -26,6 +27,4 @@ const getPlannedOrderChanges = (plannedOrderChanges:PlannedOrderChangesInput):Pl
   return {createEscrowPrices, cancelSet};
 };
 
-// export default getPlannedOrderChanges;
-module.exports = getPlannedOrderChanges;
-export {};
+export default getPlannedOrderChanges;
