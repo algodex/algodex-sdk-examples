@@ -4,8 +4,7 @@ export interface GetAssetInfoInput {
   assetId: number
 
 }
-const getAssetInfo = async (input:GetAssetInfoInput):Promise<any> => {
-  const {indexerClient, assetId} = input;
+const getAssetInfo = async ({indexerClient, assetId}:GetAssetInfoInput):Promise<any> => {
   const assetInfo = await indexerClient.lookupAssetByID(assetId).do();
   return assetInfo;
 };

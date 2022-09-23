@@ -11,7 +11,7 @@ export interface PlaceOrdersAndUpdateDBInput {
   latestPrice: number
 }
 const placeOrdersAndUpdateDB = async ({config, createEscrowPrices,
-  decimals, latestPrice}) => {
+  decimals, latestPrice}:PlaceOrdersAndUpdateDBInput) => {
   const ordersToPlace =
     placeOrders({config, createEscrowPrices, decimals, latestPrice});
   const {validResults} = await waitForOrders(ordersToPlace);

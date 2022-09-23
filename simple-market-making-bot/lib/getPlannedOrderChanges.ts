@@ -14,8 +14,8 @@ export interface PlannedOrderChanges {
   cancelSet:Set<string>
 }
 
-const getPlannedOrderChanges = (plannedOrderChanges:PlannedOrderChangesInput):PlannedOrderChanges => {
-  const {config, currentEscrows, latestPrice} = plannedOrderChanges;
+const getPlannedOrderChanges = 
+    ({config, currentEscrows, latestPrice}:PlannedOrderChangesInput):PlannedOrderChanges => {
   const {minSpreadPerc, nearestNeighborKeep, ladderTiers} = config;
 
   const idealPrices = getIdealPrices(ladderTiers, latestPrice, minSpreadPerc);
