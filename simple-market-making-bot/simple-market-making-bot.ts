@@ -11,15 +11,15 @@ const args = require('minimist')(process.argv.slice(2));
 require('dotenv').config();
 const PouchDB = require('pouchdb');
 const algosdk = require('algosdk');
-const sleep = require('./lib/sleep');
-const getCancelPromises = require('./lib/getCancelPromises').default;
-const getCurrentOrders = require('./lib/getCurrentOrders').default;
-const getOpenAccountSetFromAlgodex =
-  require('./lib/getOpenAccountSetFromAlgodex').default;
-
 const {cancelOrders} = require('./lib/cancelOrders');
-const initAPI = require('./lib/initAPI').default;
-const runLoop = require('./lib/runLoop').default;
+
+import sleep from './lib/sleep';
+import getCancelPromises from './lib/getCancelPromises';
+import getCurrentOrders from './lib/getCurrentOrders';
+import getOpenAccountSetFromAlgodex from './lib/getOpenAccountSetFromAlgodex';
+
+import initAPI from './lib/initAPI';
+import runLoop from './lib/runLoop';
 
 // app.set('host', '127.0.0.1');
 if (args.assetId !== undefined &&
