@@ -1,4 +1,4 @@
-const convertCancelResultsToDBPromises = (escrowDB, results, orders) => {
+export const convertCancelResultsToDBPromises = (escrowDB, results, orders) => {
   const addrs = results.map(result => result[0].escrowAddr);
   const resultAddrs = new Set(addrs);
   const removeFromDBPromises = orders.rows
@@ -10,7 +10,7 @@ const convertCancelResultsToDBPromises = (escrowDB, results, orders) => {
   return removeFromDBPromises;
 };
 
-const cancelOrders = async (escrowDB, orders, cancelPromises) => {
+export const cancelOrders = async (escrowDB, orders, cancelPromises) => {
   return await Promise.all(cancelPromises).then(async function(results) {
     const removeFromDBPromises =
       convertCancelResultsToDBPromises(escrowDB, results, orders);
@@ -23,8 +23,3 @@ const cancelOrders = async (escrowDB, orders, cancelPromises) => {
   });
 };
 
-if (process.env.NODE_ENV === 'test') {
-  module.exports = {cancelOrders, convertCancelResultsToDBPromises};
-} else {
-  module.exports = cancelOrders;
-}

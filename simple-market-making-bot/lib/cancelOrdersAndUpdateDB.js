@@ -1,5 +1,5 @@
 const getCancelPromises = require('./getCancelPromises');
-const cancelOrders = require('./cancelOrders');
+const {cancelOrders} = require('./cancelOrders');
 
 const cancelOrdersAndUpdateDB =
   async ({config, cancelSet, latestPrice, currentEscrows}) => {

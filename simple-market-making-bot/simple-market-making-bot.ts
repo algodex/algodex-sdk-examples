@@ -17,7 +17,7 @@ const getCurrentOrders = require('./lib/getCurrentOrders');
 const getOpenAccountSetFromAlgodex =
   require('./lib/getOpenAccountSetFromAlgodex');
 
-const cancelOrders = require('./lib/cancelOrders');
+const {cancelOrders} = require('./lib/cancelOrders');
 const initAPI = require('./lib/initAPI');
 const runLoop = require('./lib/runLoop');
 

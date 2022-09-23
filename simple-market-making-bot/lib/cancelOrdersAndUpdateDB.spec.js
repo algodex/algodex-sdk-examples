@@ -9,12 +9,14 @@ jest.mock('./getCancelPromises', () => jest.fn(input => {
         globalThis.cancelled++;
       }));
 }));
-jest.mock('./cancelOrders', () => jest.fn((escrowDB,
-    currentEscrows, cancelPromises) => {
-  return Promise.all(cancelPromises);
+jest.mock('./cancelOrders', () => ({
+  cancelOrders: jest.fn((escrowDB,
+      currentEscrows, cancelPromises) => {
+    return Promise.all(cancelPromises);
+  }),
 }));
 
-const cancelOrders = require('./cancelOrders');
+const {cancelOrders} = require('./cancelOrders');
 const getCancelPromises = require('./getCancelPromises');
 
 // eslint-disable-next-line require-jsdoc
