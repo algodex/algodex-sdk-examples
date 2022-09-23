@@ -14,4 +14,5 @@ const getAccountExistsFromIndexer = async (account, indexer) => {
   }
 };
 
-module.exports = getAccountExistsFromIndexer;
+export default getAccountExistsFromIndexer;
+

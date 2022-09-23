@@ -9,4 +9,4 @@ const waitForOrders = async ordersToPlace => {
   return {validResults, invalidResults};
 };
 
-module.exports = waitForOrders;
+export default waitForOrders;

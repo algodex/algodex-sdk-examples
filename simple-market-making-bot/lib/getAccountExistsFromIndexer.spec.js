@@ -1,4 +1,5 @@
-const getAccountExistsFromIndexer = require('./getAccountExistsFromIndexer');
+const getAccountExistsFromIndexer =
+  require('./getAccountExistsFromIndexer').default;
 
 const accountInfo = {account: {amount: 4000}};
 
