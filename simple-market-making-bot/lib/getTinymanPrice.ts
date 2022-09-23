@@ -16,4 +16,4 @@ const getTinymanPrice = async (assetId, environment) => {
   return latestPrice;
 };
 
-module.exports = getTinymanPrice;
+export default getTinymanPrice;
