@@ -1,5 +1,5 @@
 
-const getAccountExistsFromIndexer = async (account, indexer) => {
+const getAccountExistsFromIndexer = async (account:string, indexer:any):Promise<boolean> => {
   try {
     const accountInfo =
       await indexer.lookupAccountByID(account).do();
@@ -12,6 +12,9 @@ const getAccountExistsFromIndexer = async (account, indexer) => {
     console.log(`account ${account} not found!`);
     console.error(e);
   }
+
+  // Unreachable
+  return false;
 };
 
 export default getAccountExistsFromIndexer;
