@@ -10,7 +10,7 @@ export const convertCancelResultsToDBPromises = (escrowDB:any, results:CancelRes
   const addrs = results.map(result => result[0].escrowAddr);
   const resultAddrs = new Set(addrs);
   const removeFromDBPromises = orders.rows
-      .filter(order => resultAddrs.has(order.doc.order.escrowAddr!))
+      .filter(order => resultAddrs.has(order.doc.order.escrowAddr))
       .map(order => escrowDB.remove(order.doc));
   if (results.length > 0) {
     console.log({results});

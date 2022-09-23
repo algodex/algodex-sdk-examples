@@ -4,6 +4,7 @@ const convertToDBObject = (dbOrder:Order):Order => {
   const obj = {
     unixTime: Math.round(Date.now()/1000),
     address: dbOrder.address,
+    escrowAddr: dbOrder.address,
     version: dbOrder.version,
     price: dbOrder.price,
     amount: dbOrder.amount,

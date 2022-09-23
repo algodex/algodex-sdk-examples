@@ -12,7 +12,7 @@ const getCancelPromises = async (input:GetCancelPromisesInput) => {
   const {escrows, cancelSet, api, latestPrice} = input;
 
   return escrows.rows.map(order => order.doc.order)
-      .filter(order => cancelSet.has(order.escrowAddr!))
+      .filter(order => cancelSet.has(order.escrowAddr))
       .filter(order => order.contract.data !== undefined)
       .map(dbOrder => {
         const cancelOrderObj:any = {...dbOrder};

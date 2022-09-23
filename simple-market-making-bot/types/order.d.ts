@@ -16,7 +16,7 @@ export interface DBOrder {
 }
 
 export interface Order {
-  escrowAddr?:string
+  escrowAddr:string
   unixTime: number
   address: string
   version: number
