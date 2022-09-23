@@ -15,7 +15,7 @@ const sleep = require('./lib/sleep');
 const getCancelPromises = require('./lib/getCancelPromises');
 const getCurrentOrders = require('./lib/getCurrentOrders');
 const getOpenAccountSetFromAlgodex =
-  require('./lib/getOpenAccountSetFromAlgodex');
+  require('./lib/getOpenAccountSetFromAlgodex').default;
 
 const {cancelOrders} = require('./lib/cancelOrders');
 const initAPI = require('./lib/initAPI');

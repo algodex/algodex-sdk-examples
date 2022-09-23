@@ -10,14 +10,15 @@ jest.mock('./getAssetInfo', () => ({default:
   jest.fn(() => new Promise(resolve => resolve(assetInfo)))}));
 jest.mock('./getCurrentOrders', () =>
   jest.fn(() => new Promise(resolve => resolve('currentEscrowsResult'))));
-jest.mock('./getOpenAccountSetFromAlgodex', () =>
-  jest.fn(() => new Promise(resolve => resolve('openAccountSet'))));
+jest.mock('./getOpenAccountSetFromAlgodex', () => ({default:
+  jest.fn(() => new Promise(resolve => resolve('openAccountSet')))}));
 
 const getLatestPrice = require('./getLatestPrice').default;
 const initWallet = require('./initWallet');
 const getAssetInfo = require('./getAssetInfo').default;
 const getCurrentOrders = require('./getCurrentOrders');
-const getOpenAccountSetFromAlgodex = require('./getOpenAccountSetFromAlgodex');
+const getOpenAccountSetFromAlgodex =
+  require('./getOpenAccountSetFromAlgodex').default;
 
 test('Calls all state initialization functions', async () => {
   const config = {
