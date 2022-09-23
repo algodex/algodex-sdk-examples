@@ -2,6 +2,6 @@
 //   module.expo
 // }
 
-const placeOrdersAndUpdateDB = require('./placeOrdersAndUpdateDB');
+const placeOrdersAndUpdateDB = require('./placeOrdersAndUpdateDB').default;
 
 export default placeOrdersAndUpdateDB;
