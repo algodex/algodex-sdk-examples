@@ -11,4 +11,4 @@ const cancelOrdersAndUpdateDB =
     await cancelOrders(escrowDB, currentEscrows, cancelPromises);
   };
 
-module.exports = cancelOrdersAndUpdateDB;
+export default cancelOrdersAndUpdateDB;

@@ -1,4 +1,4 @@
-const cancelOrdersAndUpdateDB = require('./cancelOrdersAndUpdateDB');
+const cancelOrdersAndUpdateDB = require('./cancelOrdersAndUpdateDB').default;
 
 globalThis.cancelled = 0;
 

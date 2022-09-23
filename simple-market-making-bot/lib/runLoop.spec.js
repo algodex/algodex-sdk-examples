@@ -13,8 +13,10 @@ jest.mock('./getCurrentState', () => jest.fn(() => {
 jest.mock('./getPlannedOrderChanges', () => jest.fn(() => {
   return new Promise(resolve => resolve(globalThis.plannedOrderChanges));
 }));
-jest.mock('./cancelOrdersAndUpdateDB', () => jest.fn(() => {
-  return new Promise(resolve => resolve('did cancelOrdersAndUpdateDB'));
+jest.mock('./cancelOrdersAndUpdateDB', () => ({
+  default: jest.fn(() => {
+    return new Promise(resolve => resolve('did cancelOrdersAndUpdateDB'));
+  }),
 }));
 
 const runLoop = require('./runLoop');
@@ -23,7 +25,7 @@ const sleep = require('./sleep');
 const placeOrdersAndUpdateDB = require('./placeOrdersAndUpdateDB');
 const getCurrentState = require('./getCurrentState');
 const getPlannedOrderChanges = require('./getPlannedOrderChanges');
-const cancelOrdersAndUpdateDB = require('./cancelOrdersAndUpdateDB');
+const cancelOrdersAndUpdateDB = require('./cancelOrdersAndUpdateDB').default;
 globalThis.currentState = {
   latestPrice: 5,
   currentEscrows: ['escrowobj1', 'escrowobj2'],

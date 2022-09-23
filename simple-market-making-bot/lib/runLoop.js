@@ -2,7 +2,7 @@ const sleep = require('./sleep');
 const placeOrdersAndUpdateDB = require('./placeOrdersAndUpdateDB');
 const getCurrentState = require('./getCurrentState');
 const getPlannedOrderChanges = require('./getPlannedOrderChanges');
-const cancelOrdersAndUpdateDB = require('./cancelOrdersAndUpdateDB');
+const cancelOrdersAndUpdateDB = require('./cancelOrdersAndUpdateDB').default;
 
 const runLoop = async ({assetInfo, config, lastBlock, runState}) => {
   // const {assetId, walletAddr, minSpreadPerc, nearestNeighborKeep,
