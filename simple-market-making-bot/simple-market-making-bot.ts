@@ -22,16 +22,17 @@ import initAPI from './lib/initAPI';
 import runLoop from './lib/runLoop';
 
 // app.set('host', '127.0.0.1');
-if (args.assetId !== undefined &&
+if (args.assetId == undefined ||
     args.assetId.length === 0) {
-  throw new Error('assetId is not set!');
+  throw new Error('assetId is not set in the args!');
 }
-if (process.env.environment !== undefined &&
-  process.env.environment.length === 0) {
-  throw new Error('environment is not set!');
+
+if (process.env.ENVIRONMENT == undefined ||
+  process.env.ENVIRONMENT.length === 0) {
+  throw new Error('ENVIRONMENT is not set in .env!');
 }
 if (!process.env.ALGOD_SERVER) {
-  throw new Error('ALGOD_SERVER not set!');
+  throw new Error('ALGOD_SERVER not set in .env!');
 }
 // if (!process.env.ALGOD_TOKEN) {
 //   throw new Error('ALGOD_TOKEN not set!');
@@ -40,13 +41,13 @@ if (!process.env.ALGOD_SERVER) {
 //   throw new Error('ALGOD_PORT not set!');
 // }
 if (!process.env.INDEXER_SERVER) {
-  throw new Error('INDEXER_SERVER not set!');
+  throw new Error('INDEXER_SERVER not set in .env!');
 }
 if (!process.env.ALGODEX_ALGO_ESCROW_APP) {
-  throw new Error('ALGODEX_ALGO_ESCROW_APP not set!');
+  throw new Error('ALGODEX_ALGO_ESCROW_APP not set in .env!');
 }
 if (!process.env.ALGODEX_ASA_ESCROW_APP) {
-  throw new Error('ALGODEX_ASA_ESCROW_APP not set!');
+  throw new Error('ALGODEX_ASA_ESCROW_APP not set in .env!');
 }
 // if (!process.env.INDEXER_TOKEN) {
 //   throw new Error('INDEXER_TOKEN not set!');
@@ -55,7 +56,7 @@ if (!process.env.ALGODEX_ASA_ESCROW_APP) {
 //   throw new Error('INDEXER_PORT not set!');
 // }
 if (!process.env.ORDER_ALGO_DEPTH) {
-  throw new Error('ORDER_ALGO_DEPTH not set!');
+  throw new Error('ORDER_ALGO_DEPTH not set in .env!');
 }
 const minSpreadPerc =
   parseFloat(process.env.SPREAD_PERCENTAGE!) || 0.0065; // FIXME
