@@ -2,7 +2,7 @@ import orderDepthAmounts from '../../order-depth-amounts';
 import { BotConfig } from '../../types/config';
 import { EscrowToMake } from '../getEscrowsToCancelAndMake';
 
-interface PlaceOrderInput {
+export interface PlaceOrderInput {
   config: BotConfig
   createEscrowPrices: EscrowToMake[]
   decimals: number
