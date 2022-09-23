@@ -1,9 +1,16 @@
 import sleep from './sleep';
 import placeOrdersAndUpdateDB from './placeOrdersAndUpdateDB';
-import getCurrentState from './getCurrentState';
+import getCurrentState, { CurrentState } from './getCurrentState';
 import getPlannedOrderChanges from './getPlannedOrderChanges';
 import cancelOrdersAndUpdateDB from './cancelOrdersAndUpdateDB';
+import { BotConfig } from '../types/config';
 
+export interface RunLoopInput {
+  assetInfo: any
+  config: BotConfig
+  lastBlock: number
+  runState: CurrentState
+}
 const runLoop = async ({assetInfo, config, lastBlock, runState}) => {
   // const {assetId, walletAddr, minSpreadPerc, nearestNeighborKeep,
   //   escrowDB, ladderTiers, useTinyMan, api,

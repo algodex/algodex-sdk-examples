@@ -1,3 +1,5 @@
+import { Order } from "../types/order";
+
 export type OrderType = 'buy' | 'sell';
 
 export interface EscrowToMake {
@@ -14,6 +16,14 @@ export interface EscrowToCancel {
 export interface EscrowsToCancelAndMake {
   createEscrowPrices:Array<EscrowToMake>,
   cancelEscrowAddrs:Array<string>
+}
+
+export interface GetEscrowsToCancelAndMakeInput {
+  escrows: Order[]
+  latestPrice: number
+  minSpreadPerc: number
+  nearestNeighborKeep: number
+  idealPrices: number[]
 }
 
 export const getEscrowsToCancelAndMake = ({escrows,
