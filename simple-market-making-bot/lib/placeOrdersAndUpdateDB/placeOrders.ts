@@ -9,8 +9,7 @@ export interface PlaceOrderInput {
   latestPrice: number
 }
 
-const placeOrders = (input:PlaceOrderInput) => {
-  const {config, createEscrowPrices, decimals, latestPrice} = input;
+const placeOrders = ({config, createEscrowPrices, decimals, latestPrice}:PlaceOrderInput) => {
   const {assetId, orderAlgoDepth, api} = config;
 
   const placedOrders = createEscrowPrices.map(priceObj => {

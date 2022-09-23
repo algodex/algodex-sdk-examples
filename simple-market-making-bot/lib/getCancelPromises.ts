@@ -8,8 +8,7 @@ export interface GetCancelPromisesInput {
   latestPrice: number
 }
 
-const getCancelPromises = async (input:GetCancelPromisesInput) => {
-  const {escrows, cancelSet, api, latestPrice} = input;
+const getCancelPromises = async ({escrows, cancelSet, api, latestPrice}:GetCancelPromisesInput) => {
 
   return escrows.rows.map(order => order.doc.order)
       .filter(order => cancelSet.has(order.escrowAddr))

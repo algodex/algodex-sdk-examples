@@ -11,8 +11,7 @@ interface CancelOrdersAndUpdateDB {
   currentEscrows:AllDocsResult
 }
 const cancelOrdersAndUpdateDB =
-  async (input:CancelOrdersAndUpdateDB) => {
-    const {config, cancelSet, latestPrice, currentEscrows} = input;
+  async ({config, cancelSet, latestPrice, currentEscrows}:CancelOrdersAndUpdateDB) => {
     const {escrowDB, api} = config;
 
     const cancelPromises =
