@@ -1,5 +1,5 @@
 const sleep = require('./sleep');
-const placeOrdersAndUpdateDB = require('./placeOrdersAndUpdateDB');
+const placeOrdersAndUpdateDB = require('./placeOrdersAndUpdateDB').default;
 const getCurrentState = require('./getCurrentState');
 const getPlannedOrderChanges = require('./getPlannedOrderChanges');
 const cancelOrdersAndUpdateDB = require('./cancelOrdersAndUpdateDB').default;
