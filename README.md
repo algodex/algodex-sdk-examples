@@ -1,6 +1,8 @@
 # algodex-sdk-examples
 Examples of using the [Algodex SDK](https://github.com/algodex/algodex-sdk)
 
+**Note: A more updated trading bot can be found at https://github.com/algodex/trading-bot**
+
 ## Requirements
 
 - Node.js version 16 or above
